@@ -1,0 +1,34 @@
+# AIDA Analysis File
+#
+
+#---------------------------
+# Configuration
+#---------------------------
+FEEs: 12
+DSSDs: 1
+
+#---------------------------
+# Options
+#---------------------------
+# Ignore the MBS timestamp
+IgnoreMBSTS: false
+# Gap between data items to start a new event, in nanoseconds
+EventWindow: 2200
+# Maximum time difference between good front-back coincidences (in nanoseconds)
+FrontBackWindow: 4000
+# Maximum energy difference for implants (in MeV)
+FrontBackEnergyH: 2000
+# Maximum energy difference for decays (in keV)
+FrontBackEnergyL: 350
+
+
+#---------------------------
+# DSSD Mapping
+#---------------------------
+DSSD: 1
+- Top: 10
+- Bottom: 12
+- Left: 11
+- Right: 9
+- X: Junction
+- Y: Ohmic

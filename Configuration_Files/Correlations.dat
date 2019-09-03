@@ -1,0 +1,9 @@
+#Energy conditions for each detector array
+#FATIMA Energy gate 
+500 4000
+
+#FATIMA Raw TDC gate (ns)
+2640 2693
+
+#bPlastic Energy Gate
+0 4000
