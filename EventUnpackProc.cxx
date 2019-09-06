@@ -267,27 +267,9 @@ Bool_t EventUnpackProc::BuildEvent(TGo4EventElement* dest)
   // |               START OF EVENT ANALYSIS              | //
   // |                                                    | //
   // ------------------------------------------------------ //
-  //Temporary to fix crashes caused by TAMEX 06.04.19 
-  //Fixed 12.07.19 but what happened needs to be investigated
-  
-   // if (event_number==270283 || event_number==270282 ||  event_number==270281||  event_number==270280 ||  event_number==270279 ||  event_number==270278 ||  event_number==270277 ||  event_number==270276 ||  event_number==270275 ||  event_number==270274 ||  event_number==270273 ){
-      // if (event_number==2144767 ){
-          
-//     if ((event_number==974467 && input_data_path == "/media/sdc1/April_online/f0007_higheri_0001.lmd")
-//     ||((event_number==3927530 ||event_number==3998732) && input_data_path == "/media/sdc1/April_online/f000-3_0004.lmd")
-//     ||((event_number==4188593 || event_number==4587527 || event_number==4615226) && input_data_path == "/media/sdc1/April_online/f000-3_0005.lmd")
-//     ||((event_number==3921332 && input_data_path=="/media/sdc1/April_online/f005_diffuse_0001.lmd"))
-//     ||((event_number==5701008 ||5784742 ||7009167) && input_data_path=="/media/sdc1/April_online/f0006_maskTPC0001.lmd")
-//     ||((event_number==7009167||event_number==7037211||event_number==8118970 ||event_number== 8127984) && input_data_path=="/media/sdc1/April_online/f0006_maskphase20001.lmd")
-//     ||((event_number==7009167) && input_data_path=="/media/sdc1/April_online/f0006_maskphase20001.lmd"))
-// 
-//     {
-//       skip =true;
-//     }
+
      if (event_number>0){
-        //  cout<<"done" <<endl;
-  //  if(skip ==false){ //needed if some event causes a crash
-   // cout << "Event_num " << event_number << endl;
+   
       int subevent_iter = 0;
 
       Int_t PrcID_Conv = 0;
@@ -507,6 +489,7 @@ Bool_t EventUnpackProc::BuildEvent(TGo4EventElement* dest)
 
           AidaEvent evt;
           fOutput->fAIDAHits = AIDA_Hits;
+          
           for(int i = 0; i<AIDA_Hits; i++){
 
             AIDA_Energy[i] = RAW->get_AIDA_Energy(i);
@@ -636,7 +619,7 @@ Bool_t EventUnpackProc::BuildEvent(TGo4EventElement* dest)
           for (int i=0; i<RAW->get_FAT_QDCs_fired(); i++){
 
             fOutput->fFat_QDC_ID[i] =  RAW->get_FAT_QDC_id(i);
-            fOutput->fFat_QDC_E[i] = RAW->get_FAT_QLong_Raw(i);
+            fOutput->fFat_QDC_E[i] = RAW->get_FAT_QLong(i);
             fOutput->fFat_QDC_T[i] = RAW->get_FAT_t_qdc(i);
           }
           fOutput->fFat_firedTDC = RAW->get_FAT_TDCs_fired();
@@ -674,12 +657,14 @@ Bool_t EventUnpackProc::BuildEvent(TGo4EventElement* dest)
   ///--------------------------------------------------------------------------------------------///
         if (Used_Systems[5]&& PrcID_Conv==5){
 
-          int Phys_Channel_Lead[4][16] = {0,0};
-          int Phys_Channel_Trail[4][16] = {0,0};
+          int Phys_Channel_Lead[4][32] = {0,0};
+          int Phys_Channel_Trail[4][32] = {0,0};
           int trailHits[4] = {0};
           int leadHits[4] = {0};
           //int MaxHits = 0;
           int fingfired[4] = {0};
+          double  testToT[4][32] = {0};
+        
 
           fOutput->ffing_tamexhits = RAW->get_FINGER_tamex_hits();
 
@@ -699,21 +684,26 @@ Bool_t EventUnpackProc::BuildEvent(TGo4EventElement* dest)
               fOutput->ffing_lead_fine[i][j] = RAW->get_FINGER_fine_lead(i,j);
               fOutput->ffing_trail_coarse[i][j] = RAW->get_FINGER_coarse_trail(i,j);
               fOutput->ffing_trail_fine[i][j] = RAW->get_FINGER_fine_trail(i,j);
-            
-              if(fOutput->ffing_chID[i][j] % 2 == 0){
+              fOutput->ffing_tamexCh[i][j] = RAW->get_FINGER_physical_channel(i,j);
+              
+              if(fOutput->ffing_chID[i][j] % 2 == 1){ //Lead odd j
                 Phys_Channel_Lead[i][j] = fingID[i][j/2]; //From allocation file
                 fOutput->ffing_Lead_Phys_Chan[i][j] = Phys_Channel_Lead[i][j];  //Lead Chan.
                 fOutput->ffing_Lead_T[i][j] = RAW->get_FINGER_lead_T(i,j); //Lead Time
+                fOutput->ffing_TOT_added[i][j] = RAW->get_FINGER_TOT_added(i,j);
+//               cout <<"1) event " <<event_number <<" fOutput->ffing_TOT_added " << fOutput->ffing_TOT_added[i][j]<<" fOutput->ffing_Lead_T[i][j] " << fOutput->ffing_Lead_T[i][j] <<  <<" i " << i << " j " << j <<endl;
           }
 
-              else{
+              else{ //Trail even j
                 Phys_Channel_Trail[i][j] = RAW->get_FINGER_physical_channel(i,j);
                 fOutput->ffing_Trail_Phys_Chan[i][j] = Phys_Channel_Trail[i][j]; //Trail Chan.
                 fOutput->ffing_Trail_T[i][j] = RAW->get_FINGER_trail_T(i,j); //Trail Time
+                
+                 
               }
-
+          
+            
               fOutput->ffing_TOT[i][j] = RAW->get_FINGER_TOT(i,j);
-
             }
           }
         }

@@ -125,6 +125,7 @@ public:
         Int_t ffing_leadHits[4];
         Int_t ffing_trailHits[4];
         Int_t ffing_iterator[4];
+        Int_t ffing_tamexCh[4][32];
         
         Int_t ffing_Lead_Phys_Chan[4][32];
         Int_t ffing_Trail_Phys_Chan[4][32];
@@ -133,6 +134,7 @@ public:
         Double_t ffing_Lead_T[4][100];
         Double_t ffing_Trail_T[4][100];
         Double_t ffing_TOT[4][100];
+        Double_t ffing_TOT_added[4][100];
         
        Double_t ffing_lead_coarse[4][100];
        Double_t ffing_lead_fine[4][100];

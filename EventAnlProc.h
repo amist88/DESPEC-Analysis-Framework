@@ -85,7 +85,6 @@ class EventAnlProc : public TGo4EventProcessor {
       int FatQDCID[50];
       double FatQDC[50];
       double FatQDC_T[50];
-
       int FatTDCFired;
       int FatTDCID[50];
       double FatTDC_TS[50][50];
@@ -100,12 +99,14 @@ class EventAnlProc : public TGo4EventProcessor {
       double GalT[32];
       int GalPileup;
       Long64_t Gal_WR;
+      Long64_t Gal_WR_Store[100];
 
       int Fing_firedTamex;
       int Fing_leadHits[4];
       int Fing_trailHits[4];
       int Fing_iterator[4];
       double Fing_trig[4];
+      int Fing_tamex_ch[4][32];
       int Fing_leadChan[4][32];
       int Fing_trailChan[4][32];
       double Fing_lead_coarse[4][32];
@@ -116,12 +117,15 @@ class EventAnlProc : public TGo4EventProcessor {
       double Fing_leadT[4][32];
       double Fing_trailT[4][32];
       double Fing_TOT[4][32];
+      double Fing_TOT_added[4][32];
       int Fing_chID[4][32];
       double dataSetPerEvent[50];
       double pmtSetPerEvent[50];
       double totaltimeEvent[50];
       double maxToT;
       int maxToTChan;
+      double maxToT_added;
+      int maxToT_added_Chan;
 
      void Make_FRS_Histos();
      void Make_Aida_Histos();
@@ -284,6 +288,8 @@ class EventAnlProc : public TGo4EventProcessor {
             TH1 *hGAL_Pileup;
             TH2 *hGAL_Chan_E_Mat;
             
+            TH1 *hGAL_FatdT[32];
+            
             TH1 *hFING_Hit_Pat;
             TH1 *hFING_lead_lead[52];
             TH1 *hFING_trail_trail[52];
@@ -291,6 +297,10 @@ class EventAnlProc : public TGo4EventProcessor {
             TH1 *hFING_MaxToT[52];
             TH1 *hFING_trig_lead[52];
             TH2 *hFING_ToT_StripID;
+            TH2 *hFING_ToT_StripID_UpDown;
+            TH2 *hFING_ToT_StripID_UpDown_max;
+            TH2 *hFING_Pos_ToT;
+            TH2 *hFING_Pos_ToT_Max;
             TH2 *hFING_MaxToT_StripID;
             TH2 *hFING_MaxToTExp_StripID;
             TH2 *hFING_ToT_lead_lead[52];

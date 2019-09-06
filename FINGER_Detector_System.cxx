@@ -215,7 +215,7 @@ void FINGER_Detector_System::get_trigger(){
     coarse_T[tamex_iter] = (double) data->coarse_T;
     fine_T[tamex_iter] = (double) data->fine_T;
     ch_ID[tamex_iter] = data->ch_ID;
-   // cout<<"2) fine_T[tamex_iter] " << fine_T[tamex_iter]<< " tamex_iter " << tamex_iter << endl;
+  // cout<<"2) fine_T[tamex_iter] " << fine_T[tamex_iter]<< " tamex_iter " << tamex_iter << " ch_ID[tamex_iter]  " <<ch_ID[tamex_iter]  <<endl;
  
     //next word
     pdata++;
@@ -273,14 +273,14 @@ void FINGER_Detector_System::get_edges(){
         edge_coarse[tamex_iter][iterator[tamex_iter]] = (double) data->coarse_T;
         edge_fine[tamex_iter][iterator[tamex_iter]] = (double) data->fine_T;
         ch_ID_edge[tamex_iter][iterator[tamex_iter]] = data->ch_ID;
-        lead_arr[tamex_iter][iterator[tamex_iter]] = 1 - (data->ch_ID % 2);
+        lead_arr[tamex_iter][iterator[tamex_iter]] = (data->ch_ID % 2);
      //   cout <<" lead_arr[tamex_iter][iterator[tamex_iter]] " <<  lead_arr[tamex_iter][iterator[tamex_iter]]<< " ch_ID_edge[tamex_iter][iterator[tamex_iter]] "<<ch_ID_edge[tamex_iter][iterator[tamex_iter]]<<endl;
        //         if(ch_ID_edge[1][iterator[tamex_iter]]==6){
-   // cout << "1) tamex_iter " << tamex_iter << " iterator[tamex_iter] " << iterator[tamex_iter] << "  edge_coarse[tamex_iter] " <<  edge_coarse[tamex_iter][iterator[tamex_iter]]<<" edge_fine " <<  edge_fine[tamex_iter][iterator[tamex_iter]]<< " ch_ID_edge " << ch_ID_edge[tamex_iter][iterator[tamex_iter]] <<" lead_arr "<< lead_arr[tamex_iter][iterator[tamex_iter]]<< endl;
+    //cout << "0) tamex_iter " << tamex_iter << " iterator[tamex_iter] " << iterator[tamex_iter] << "  edge_coarse[tamex_iter] " <<  edge_coarse[tamex_iter][iterator[tamex_iter]]<<" edge_fine " <<  edge_fine[tamex_iter][iterator[tamex_iter]]<< " ch_ID_edge " << ch_ID_edge[tamex_iter][iterator[tamex_iter]] <<" lead_arr "<< lead_arr[tamex_iter][iterator[tamex_iter]]<< endl;
 //         }
 //         cout << "debug edges" << endl;
 //         cout << dec << tamex_iter << " " << data->ch_ID << " " << endl;
-
+// cout << "coarse " << edge_coarse[tamex_iter][iterator[tamex_iter]] << edge_coarse[tamex_iter][iterator[tamex_iter]] << " edge_fine" << edge_fine[tamex_iter][iterator[tamex_iter]]<<" iterator[tamex_iter] " << iterator[tamex_iter] << " tamex_iter " <<  tamex_iter <<endl;
         //trailing edge reached
         iterator[tamex_iter]++;
 

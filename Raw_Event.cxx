@@ -245,23 +245,19 @@ void Raw_Event::set_DATA_FINGER(int* it,double** Edge_Coarse,double** Edge_fine,
         for(int j = 0;j < iterator[i];j++){
             ch_ID[i][j] = ch_ed[i][j];
             leading_array[i][j] = Lead_Arr[i][j];
-            //  cout<<"1 ch_ID[i][j] " <<ch_ID[i][j]<< " coarse_T_edge_lead[i][j] " <<  coarse_T_edge_lead[i][j]<< " leading_array[i][j] " << leading_array[i][j] << endl;
-            if(ch_ID[i][j] % 2 == 0){
-               //cout<<"2 ch_ID[i][j] " <<ch_ID[i][j]<< " coarse_T_edge_lead[i][j] " <<  coarse_T_edge_lead[i][j]<< " leading_array[i][j] " << leading_array[i][j]<< " i " << i << " j " << j << endl;
-       
+             if(ch_ID[i][j] % 2 == 1){
+               
                 coarse_T_edge_lead[i][j] = (double) Edge_Coarse[i][j];
                 fine_T_edge_lead[i][j] = (double) Edge_fine[i][j];
                 phys_channel[i][j] = (ch_ID[i][j]+1)/2;
                 leading_hits[i]++;
                 leading_hits_ch[i][phys_channel[i][j]]++;
-           //     cout << "2)phys_channel[i][j] " << phys_channel[i][j] << " i " << i << " j " << j<< " ch_ID[i][j] " << ch_ID[i][j]<< endl;
-                // cout << "2) eve" << " i " << i << " j " << j <<" ChID "<< ch_ID[i][j]<<" Phys chan " << phys_channel[i][j]<<" coarse_T_edge_lead[i][j] " << coarse_T_edge_lead[i][j] << " fine_T_edge_lead[i][j] " << fine_T_edge_lead[i][j] << endl;
-         
+      
             }
             else{
                 coarse_T_edge_trail[i][j] = (double)  Edge_Coarse[i][j];
                 fine_T_edge_trail[i][j] =(double)  Edge_fine[i][j];
-               // cout <<"RAW trail fine " << Edge_fine[i][j] << " i " << i << " j " << j <<endl;
+            
                 trailing_hits[i]++;
                 phys_channel[i][j] = (ch_ID[i][j])/2;
                 trailing_hits_ch[i][phys_channel[i][j]]++;
@@ -534,11 +530,18 @@ ULong64_t Raw_Event::get_WR(){return WR;}
                     }
 
     double Raw_Event::get_FINGER_TOT(int i,int j){
-        // i is board ID, j is physical channel
         double T_lead = (coarse_T_edge_lead[i][j] - fine_T_edge_lead[i][j])*5000;
         double T_trail = (coarse_T_edge_trail[i][j+1] - fine_T_edge_trail[i][j+1])*5000;
                return T_trail - T_lead;
-                    }
+                   }
+                   
+         double Raw_Event::get_FINGER_TOT_added(int i,int j){
+        double T_lead1 = (coarse_T_edge_lead[i][j] - fine_T_edge_lead[i][j])*5000;
+        double T_trail1 = (coarse_T_edge_trail[i][j+1] - fine_T_edge_trail[i][j+1])*5000;
+        double T_lead2 = (coarse_T_edge_lead[i][j-2] - fine_T_edge_lead[i][j-2])*5000;
+        double T_trail2 = (coarse_T_edge_trail[i][j-1] - fine_T_edge_trail[i][j-1])*5000;
+               return (T_trail1 - T_lead1) + (T_trail2 - T_lead2);
+                   }
 
     int Raw_Event::get_FINGER_trail_hits(int i){return trailing_hits[i];}
 

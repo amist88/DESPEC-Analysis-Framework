@@ -377,21 +377,28 @@ Bool_t EventAnlProc::BuildEvent(TGo4EventElement* dest)
 
  ///--------------------------------------/**Galileo Input**/------------------------------------------///
    GalFired = -1;
-   Gal_WR = 0;
+   //Gal_WR = 0;
    for(int g = 0; g<20; g++){
-        GalID[g] = -1;
+      GalID[g] = -1;
       GalE[g] = -1;
       GalT[g] =-1;
    }
-   if (Used_Systems[4]==1&& PrcID_Conv[4]==4){
+   if (Used_Systems[4] && PrcID_Conv[4]==4){
+        
+      
     GalFired =  pInput->fGal_fired;
     GalPileup = pInput->fGal_Pileup;
     Gal_WR = pInput->fGal_WR;
+    //for(int f=0;f<1000;f++){
+   
+    //}
+
     for (int i = 0; i<GalFired; i++){
       GalID[i] = pInput->fGal_ID[i];
       GalE[GalID[i]] = pInput->fGal_E[GalID[i]];
       GalT[GalID[i]] = pInput->fGal_T[GalID[i]];
     }
+    
 
         Do_Galileo_Histos(pOutput);
   }
@@ -406,11 +413,13 @@ Bool_t EventAnlProc::BuildEvent(TGo4EventElement* dest)
             Fing_trig[i] = 0;
 
         for (int j = 0; j<32; j++){
+            Fing_tamex_ch[i][j] = -1;
             Fing_leadChan[i][j] = -1;
             Fing_leadT[i][j] = 0;
             Fing_trailChan[i][j] = -1;
             Fing_trailT[i][j] = 0;
             Fing_TOT[i][j] = 0;
+            Fing_TOT_added[i][j] = 0;
             Fing_chID[i][j] = -1;
             Fing_lead_coarse[i][j] =  -1;
             Fing_lead_fine[i][j]  =-1;
@@ -421,6 +430,7 @@ Bool_t EventAnlProc::BuildEvent(TGo4EventElement* dest)
   if (Used_Systems[5] && PrcID_Conv[5]==5){
           Fing_firedTamex = pInput->ffing_tamexhits;
           maxToT = Fing_TOT[0][0];
+          maxToT_added = Fing_TOT_added[0][0];
     
           for (int i=0; i< Fing_firedTamex; i++){
             Fing_leadHits[i] = pInput-> ffing_leadHits[i];
@@ -429,32 +439,43 @@ Bool_t EventAnlProc::BuildEvent(TGo4EventElement* dest)
             Fing_trig[i] = pInput->ffing_Trig[i];
 
                 for (int j =0; j<Fing_iterator[i]; j++){
-          
+                    Fing_tamex_ch[i][j] =  pInput->ffing_tamexCh[i][j]; 
                     Fing_lead_coarse[i][j] =  pInput->ffing_lead_coarse[i][j];
-                    Fing_lead_fine[i][j]  = pInput->ffing_lead_fine[i][j] ;
-                    Fing_trail_coarse[i][j] =  pInput->ffing_trail_coarse[i][j] ;
+                    Fing_lead_fine[i][j]  = pInput->ffing_lead_fine[i][j];
+                    Fing_trail_coarse[i][j] =  pInput->ffing_trail_coarse[i][j];
                     Fing_trail_fine[i][j] =  pInput->ffing_trail_fine[i][j];
-          
+                    
                     Fing_chID[i][j] = pInput->ffing_chID[i][j];
                   //  cout << "  Fing_chID[i][j] " << Fing_chID[i][j]<< " i " << i << " j " << j << " ffing_Lead_T[i][j] " << pInput->ffing_Lead_T[i][j] <<endl;
-                    if(Fing_chID[i][j] % 2 == 0){
+                    if(Fing_chID[i][j] % 2 == 1){
                         Fing_leadChan[i][j] = pInput->ffing_Lead_Phys_Chan[i][j];
                         Fing_leadT[i][j] = pInput->ffing_Lead_T[i][j];
+                       
                         }                                                                    
 
                 else{
                      Fing_trailChan[i][j] = pInput->ffing_Trail_Phys_Chan[i][j];
                      Fing_trailT[i][j] = pInput->ffing_Trail_T[i][j];
+                    
                 }
+                ///Note: ToT value here is only for the 'up' PMTs
                     Fing_TOT[i][j] = pInput->ffing_TOT[i][j];
+                    /// Up PMT ToT + Down PMT ToT
+                    Fing_TOT_added[i][j] =   pInput->ffing_TOT_added[i][j];
             //    cout << "1) ev "<< event_number <<" Fing_TOT[i][j] "<< Fing_TOT[i][j] << " i " << i << " j " << j << endl;
                 //for(int l=0;l<Fing_leadChan[i][j]; l++){
-                        if(Fing_chID[i][j] % 2 == 0){
+                        if(Fing_chID[i][j] % 2 == 1){
                              
-                            if(maxToT<Fing_TOT[i][j] && Fing_leadChan[i][j]>0 ){
+                          if(maxToT<Fing_TOT[i][j] && Fing_leadChan[i][j]>0 ){
                             
                                 maxToT = Fing_TOT[i][j];
                                 maxToTChan = Fing_leadChan[i][j];
+                        }
+                        //Get max ToT for PMT pairings
+                        if(maxToT_added<Fing_TOT_added[i][j]&& Fing_leadChan[i][j]>0 ){
+                            maxToT_added = Fing_TOT_added[i][j];
+                            maxToT_added_Chan = Fing_leadChan[i][j];
+                            
                         }
              //  cout <<"2) ev " << event_number <<" maxtot " <<maxToT <<endl;
                     
@@ -1362,7 +1383,8 @@ void EventAnlProc::Do_Fatima_Histos(EventAnlStore* pOutput){
         Fat_QDCtime1 = FatQDC_T[i];
 
           ///FATIMA Calibrated Energy Singles
-        Fat_QDC_GainMatch[Fat_QDC_IDMain_i] = fCal->Afat[Fat_QDC_IDMain_i]* pow(Fat_QDC_i[Fat_QDC_IDMain_i],3) + fCal->Bfat[Fat_QDC_IDMain_i]* pow(FatQDC[i],2) + fCal->Cfat[Fat_QDC_IDMain_i]*FatQDC[i] + fCal->Dfat[Fat_QDC_IDMain_i];
+        //Fat_QDC_GainMatch[Fat_QDC_IDMain_i] = fCal->Afat[Fat_QDC_IDMain_i]* pow(Fat_QDC_i[Fat_QDC_IDMain_i],3) + fCal->Bfat[Fat_QDC_IDMain_i]* pow(FatQDC[i],2) + fCal->Cfat[Fat_QDC_IDMain_i]*FatQDC[i] + fCal->Dfat[Fat_QDC_IDMain_i];
+        Fat_QDC_GainMatch[Fat_QDC_IDMain_i] = Fat_QDC_i[Fat_QDC_IDMain_i];
         hFAT_QDCCalib1[Fat_QDC_IDMain_i]->Fill(Fat_QDC_GainMatch[Fat_QDC_IDMain_i]);
         pOutput->pFat_QDCGainMatch[Fat_QDC_IDMain_i] = Fat_QDC_GainMatch[Fat_QDC_IDMain_i];
         hFAT_QDCCalib1Sum->Fill(Fat_QDC_GainMatch[Fat_QDC_IDMain_i]);
@@ -1376,7 +1398,7 @@ void EventAnlProc::Do_Fatima_Histos(EventAnlStore* pOutput){
             ///Dont loop on the first hit again:
             if(Fat_QDC_IDMain_i < Fat_QDC_IDMain_j){
                 Fat_QDC_j[Fat_QDC_IDMain_j] = FatQDC[j];
-                Fat_QDCGainMatch_j[Fat_QDC_IDMain_j] = fCal->Afat[Fat_QDC_IDMain_j]* pow(Fat_QDC_j[Fat_QDC_IDMain_j],3) + fCal->Bfat[Fat_QDC_IDMain_j]* pow(Fat_QDC_j[j],2) + fCal->Cfat[Fat_QDC_IDMain_j]*Fat_QDC_j[j] + fCal->Dfat[Fat_QDC_IDMain_j];
+               // Fat_QDCGainMatch_j[Fat_QDC_IDMain_j] = fCal->Afat[Fat_QDC_IDMain_j]* pow(Fat_QDC_j[Fat_QDC_IDMain_j],3) + fCal->Bfat[Fat_QDC_IDMain_j]* pow(Fat_QDC_j[j],2) + fCal->Cfat[Fat_QDC_IDMain_j]*Fat_QDC_j[j] + fCal->Dfat[Fat_QDC_IDMain_j];
                 Fat_QDC_dt = Fat_QDCtime1 - Fat_QDCtime2;
                 hFAT_QDCdt[Fat_QDC_IDMain_i] ->Fill(Fat_QDC_dt);
                 //Fill Energy-Energy matrix (NOTE: turned off making 2D matrices for each channel for now to speed things up)
@@ -1500,10 +1522,11 @@ void EventAnlProc::Do_Fatima_Histos(EventAnlStore* pOutput){
     hGAL_Chan_E_M1= MakeTH1('I',"GALILEO/Stats/GALILEO_multiplicity_1","GALILEO Channel Energy",5000,0,5000);
     hGAL_Chan_E_M2= MakeTH1('I',"GALILEO/Stats/GALILEO_multiplicity_2","GALILEO Channel Energy",5000,0,5000);
     hGAL_AddbackSum = MakeTH1('I',"GALILEO/Sum/GALILEO_Addback","GALILEO Addback Energy Sum",5000,0,5000);
- 
+    
     for (int j=0; j<32; j++)
     {
     hGAL_Chan_E[j] = MakeTH1('D',Form("GALILEO/GALILEO_Energy/GALILEO_E%2d",j), Form("GALILEO Channel Energy Channel %2d",j),5000,0,5000);
+    hGAL_FatdT[j] = MakeTH1('I',Form("Correlations/Fatima_Galilieo/Fat_GAldT%2d",j),Form("GALILEO Fatima dT Ch. %2d",j),2000,-1000,1000);
    // hGAL_Chan_E2[j] = MakeTH1('D',Form("GALILEO/GALILEO_Energy2/GALILEO_E2%2d",j), Form("GALILEO Channel Energy Channel %2d",j),5000,0,5000);
     //hGAL_Chan_Egate[j] = MakeTH1('D',Form("GALILEO/gated energy/GALILEO_Egate%2d",j), Form("GALILEO Channel Energy Channel %2d",j),5000,0,5000);
     }
@@ -1521,6 +1544,7 @@ void EventAnlProc::Do_Galileo_Histos(EventAnlStore* pOutput){
         double GalE_Cal_Sum_i,sum1,sum2;
         long GalT_i[32];
         double AddbackSum;
+        long Fat_Gal_dT;
         GalE_Cal_Sum_i = 0;
         Gal_time_diff = 0;
         sum1 = 0;
@@ -1535,19 +1559,30 @@ void EventAnlProc::Do_Galileo_Histos(EventAnlStore* pOutput){
             GalT_i[i] = 0;
         
         }
+//         for(int j=0;j<1000;j++){
+//             Tdiff_WR_gal[j]=0;
+//         }
 
         //Galileo multiplicity
         hGAL_Multi -> Fill(GalFired);
         pOutput-> pGalFired = GalFired;
         pOutput->pGal_WR = Gal_WR;
         
-        
+//         int time_gate=1000;
+//         if(Gal_WR>0){
+//         for (int p = 0; p<time_gate; p++){
+//         Tdif" f_WR_gal[p] = Gal_WR;
+       // if (Used_Systems[3] && PrcID_Conv[3]==3 ){
+       //     if (Fat_WR>0){
+  //  cout << "Gal_WR "<<Gal_WR<< " Fat_WR "<<Fat_WR<<" Fat_WR-Gal_WR " << Fat_WR-Gal_WR <<endl;}}
     for (int i = 0; i < GalFired; i++){
-     
+         
         pOutput-> pGalID[i] = GalID[i];
         GalT_i[i]=GalT[GalID[i]]; //Galileo First hit Time
         pOutput-> pGalT[GalID[i]] = GalT[GalID[i]]; 
         GalE1[GalID[i]] = GalE[GalID[i]]; //Galileo raw energy
+        Fat_Gal_dT =  (Fat_WR-Gal_WR);
+        hGAL_FatdT[GalID[i]]->Fill(Fat_Gal_dT);
         //Gal_Multipl++;
         ///Galileo calibrated energy
         GalE_Cal_i[GalID[i]] = fCal->AGal[GalID[i]]* pow( GalE1[GalID[i]],2) + fCal->BGal[GalID[i]]*  GalE1[GalID[i]] + fCal->CGal[GalID[i]];
@@ -1597,33 +1632,41 @@ void EventAnlProc::Do_Galileo_Histos(EventAnlStore* pOutput){
 void EventAnlProc::Make_Finger_Histos(){
 
   for (int i =0; i<52; i++){
-    hFING_lead_lead[i] = MakeTH1('D',Form("FINGER/lead-lead/lead-leadCh.%02d",i),Form("lead-leadCh.%02d",i),500, 0., 50000.);
+    hFING_lead_lead[i] = MakeTH1('D',Form("FINGER/lead-lead/lead-leadCh.%02d",i),Form("lead-leadCh.%02d",i),1000, -50000, 50000.);
     hFING_ToT[i] = MakeTH1('D',Form("FINGER/TOT/TOTCh%02d",i),Form("TOT Ch(%2d)",i), 2001, -100000., 100000.);
     hFING_trig_lead[i] = MakeTH1('D',Form("FINGER/trig-lead/trig-leadCh.%02d",i),Form("trig-leadCh.%02d",i), 500, -25000., 25000.);
     //hFING_ToT_lead_lead[i] = MakeTH2('D',Form("FINGER/ToT-Trig-Lead/StatCh%02d",i),Form("ToT_LeadCh%02d",i), 500, 0., 50., 200, 300., 400.);
     hFING_MaxToT[i] = MakeTH1('D',Form("FINGER/MAXTOT/MAXTOTCh%02d",i),Form("MAXTOT Ch(%2d)",i), 1000, 0., 10000.);
-    hFING_fcoarse[i] = MakeTH1('D',Form("FINGER/PADI_Coarse/CoarseCh%02d",i),Form("Coarse%2d",i), 1001, -500., 500.);
+    hFING_fcoarse[i] = MakeTH1('D',Form("FINGER/PADI_Coarse/CoarseCh%02d",i),Form("Coarse%2d",i), 1E6, 0., 1.2E7);
     hFING_ffine[i] = MakeTH1('D',Form("FINGER/PADI_Fine/FineCh%02d",i),Form("Fine%2d",i), 12625, -500., 50000.);
-    hFING_trail_trail[i]= MakeTH1('D',Form("FINGER/trail-trail/trail-trailCh.%02d",i),Form("trail-trailCh.%02d",i),500, 0., 50000.);
+    hFING_trail_trail[i]= MakeTH1('D',Form("FINGER/trail-trail/trail-trailCh.%02d",i),Form("trail-trailCh.%02d",i),1000, -50000., 50000.);
       
 }
 
   hFING_Hit_Pat = MakeTH1('I',"FINGER/Stats/FINGER_Hit_Pat","FINGER Hit Pattern",52,0,52);
   hFING_ToT_StripID = MakeTH2('I',"FINGER/TOT_vs_PMT","ToT vs Strip number", 2001, -100000., 100000., 52, 0, 52);
   hFING_MaxToT_StripID = MakeTH2('I',"FINGER/MaxTOT_vs_PMT","MaxToT vs Strip number", 2001, -100000., 100000., 52, 0, 52);
-  hFING_Pos = MakeTH2('D',"FINGER/position","Time ratio vs Strips",51,1,51, 5000, -10., 10.);
+  hFING_Pos = MakeTH2('D',"FINGER/position","Time ratio vs Strips",51,1,51, 1000, -10., 10.);
+  hFING_Pos_ToT = MakeTH2('D',"FINGER/positionToT","ToT ratio vs Strips",51,1,51, 5000, -1., 1.);
+  hFING_Pos_ToT_Max = MakeTH2('D',"FINGER/positionToTMax","ToT ratio vs Strips Max",51,1,51, 5000, -1., 1.);
+ 
   hFING_ToT_StripID_Exp= MakeTH2('I',"FINGER/TOT_vs_PMT_Exp","ToT exponential vs Strip number", 1000, 0., 10000., 52, 0, 52);
   hFING_MaxToTExp_StripID = MakeTH2('I',"FINGER/MaxTOTExp_vs_PMT","MaxToT exponential vs Strip number", 1000, 0., 100000., 52, 0, 52);
 
-    
+  hFING_ToT_StripID_UpDown = MakeTH2('I',"FINGER/TOT_vs_PMT_sumpmt","ToT vs Strip number sum PMT", 2001, -100000., 100000., 52, 0, 52);
+     
+  hFING_ToT_StripID_UpDown_max = MakeTH2('I',"FINGER/TOT_vs_PMT_sumpmt_MAX","ToT vs Strip number sum PMT MAX", 2001, -100000., 100000., 52, 0, 52);
 }
 
-
-   void EventAnlProc::Do_Finger_Histos(EventAnlStore* pOutput){
+void EventAnlProc::Do_Finger_Histos(EventAnlStore* pOutput){
         double Fing_LeadDiff[100],Fing_TrailDiff[100],Fing_SC41_diff[100],  Fing_LeadPlus[100];
         double Fing_TOT_Chan[52];
         double FingToT_E[4][32];
         double FingToT_E_Max;
+        double Fing_pos_ToT_max[52];
+        double Fing_ratio;
+        double Fing_ToT_UpDown[4][32];
+        double Fing_pos_ToT[4][32];
         //  double upData = 0;                                                          //////E.Sahin    pos vs strip calc
         double downData = 0;
         double total_time = 0;
@@ -1632,17 +1675,24 @@ void EventAnlProc::Make_Finger_Histos(){
         int firedPmtNumber = -1;
         int totalFiredPMT = -1;
 
-  FingToT_E_Max = 0;
-  for (int i=0; i<100; i++){
-    Fing_LeadDiff[i] = 0;
-    Fing_TrailDiff[i] = 0;
-    Fing_SC41_diff[i] = 0;
-    Fing_LeadPlus[i] = 0;
-   
-    }
-
+        FingToT_E_Max = 0;
+        for (int i=0; i<100; i++){
+            Fing_LeadDiff[i] = 0;
+            Fing_TrailDiff[i] = 0;
+            Fing_SC41_diff[i] = 0;
+            Fing_LeadPlus[i] = 0;   
+            }
+    
+        for(int k=0; k<4;k++){
+            for(int l=0;l<32;l++){
+            Fing_ToT_UpDown[k][l] = -9999;
+            FingToT_E[k][l] = -9999;
+            Fing_pos_ToT[k][l] = -9999;
+            }      
+        }
    for (int k=0; k<52; k++){
         Fing_TOT_Chan[k] = -1;
+       
    }
         
   for(int a=0;a<50;a++){
@@ -1650,49 +1700,51 @@ void EventAnlProc::Make_Finger_Histos(){
     dataSetPerEvent[a] = -9999;
     totaltimeEvent[a] = -9999;
   }
-    pOutput -> pFing_firedTamex = Fing_firedTamex;
-  for(int i =0; i<Fing_firedTamex; i++){
+  pOutput -> pFing_firedTamex = Fing_firedTamex;
+    for(int i =0; i<Fing_firedTamex; i++){
 
     //Lead hits
-      pOutput -> pFing_iterator[i] = Fing_iterator[i];
-    for (int j =0; j<Fing_iterator[i]; j++){
-    pOutput->pFing_LeadChan[i][j] = Fing_leadChan[i][j];
+        pOutput -> pFing_iterator[i] = Fing_iterator[i];
+    
+        for (int j =0; j<Fing_iterator[i]; j++){
+            pOutput->pFing_LeadChan[i][j] = Fing_leadChan[i][j];
      // Trail - Trail
-       if(Fing_chID[i][j] % 2 == 1){
+            if(Fing_chID[i][j] % 2 == 0){
        //      cout <<"2ev " << event_number << " Fing_trailT[i][j]  " << Fing_trailT[i][j] <<" Fing_trailChan[i][j] "<<Fing_trailChan[i][j] << endl;
-        Fing_TrailDiff[Fing_trailChan[i][j]] = (Fing_trailT[i][j] - Fing_trailT[i][j+2]);
-        hFING_trail_trail[Fing_trailChan[i][j]] -> Fill( Fing_TrailDiff[Fing_trailChan[i][j]] );
+                Fing_TrailDiff[Fing_trailChan[i][j]] = (Fing_trailT[i][j] - Fing_trailT[i][j+2]);
+                hFING_trail_trail[Fing_trailChan[i][j]] -> Fill( Fing_TrailDiff[Fing_trailChan[i][j]] );
        
         }
         
         
-        if(Fing_leadChan[i][j]>-1){
+            if(Fing_leadChan[i][j]>-1){
                 hFING_fcoarse[Fing_leadChan[i][j]]->Fill(Fing_lead_coarse[i][j]);
                 hFING_ffine[ Fing_leadChan[i][j]] ->Fill(Fing_lead_fine[i][j]);
-            // cout << "1) ev " << event_number << " Fing_lead_fine[i][j] " << Fing_lead_fine[i][j]<< endl;
+            // cout << "1) ev " << event_number << " Fing_lead_coarse[i][j] " << Fing_lead_coarse[i][j]<< " Fing_lead_fine[i][j] " << Fing_lead_fine[i][j] <<" i " << i << " j "<<j <<endl;
             }
             if(Fing_trailChan[i][j]>-1){
-             hFING_fcoarse[Fing_trailChan[i][j]]->Fill(Fing_trail_coarse[i][j]);
-             hFING_ffine[ Fing_trailChan[i][j]]   ->Fill(Fing_trail_fine[i][j]);
-             //  cout << "1) ev " << event_number << " Fing_trail_fine[i][j] " << Fing_trail_fine[i][j]<< endl;
+                hFING_fcoarse[Fing_trailChan[i][j]]->Fill(Fing_trail_coarse[i][j]);
+                hFING_ffine[ Fing_trailChan[i][j]]   ->Fill(Fing_trail_fine[i][j]);
+              // cout << "2) ev " << event_number << " Fing_trail_coarse[i][j] " << Fing_trail_coarse[i][j]<<" Fing_trail_fine[i][j] " << Fing_trail_fine[i][j]<< " i " << i << " j "<<j << endl;
             }
+            //cout << "1)event " << event_number << "Fing_TOT_added[i][j] " << Fing_TOT_added[i][j] <<" Fing_leadChan[i][j] "<<Fing_leadChan[i][j]<<endl;
             
-    
-        if (j<32&& Fing_leadChan[i][j]>-1){
+    //cout << "2)event " << event_number << "maxToT_added " << maxToT_added <<" maxToT_added_Chan "<<maxToT_added_Chan<<endl;
+            if (j<32&& Fing_leadChan[i][j]>-1){
 
-            hFING_Hit_Pat ->Fill(Fing_leadChan[i][j]);
-            pOutput -> pFing_leadT[i][j] = Fing_leadT[i][j];
+                hFING_Hit_Pat ->Fill(Fing_leadChan[i][j]);
+                pOutput -> pFing_leadT[i][j] = Fing_leadT[i][j];
     
-            //Lead - Lead Time
-        if(Fing_leadT[i][j]>0&&Fing_leadT[i][j+1]>0){
-          Fing_LeadDiff[Fing_leadChan[i][j]] = (Fing_leadT[i][j] - Fing_leadT[i][j+1]);
-          Fing_LeadPlus[Fing_leadChan[i][j]] = (Fing_leadT[i][j] + Fing_leadT[i][j+1]);
-          hFING_lead_lead[Fing_leadChan[i][j]] ->Fill(Fing_LeadDiff[Fing_leadChan[i][j]]);
-          pOutput -> pFing_LeadDiff[Fing_leadChan[i][j]]  = Fing_LeadDiff[Fing_leadChan[i][j]];
-          pOutput -> pFing_LeadPlus[Fing_leadChan[i][j]] =  Fing_LeadPlus[Fing_leadChan[i][j]];    
-        }
+            ///Lead - Lead Time
+            if(Fing_leadT[i][j]>0&&Fing_leadT[i][j+2]>0){
+                Fing_LeadDiff[Fing_leadChan[i][j]] = (Fing_leadT[i][j] - Fing_leadT[i][j+2]);
+                Fing_LeadPlus[Fing_leadChan[i][j]] = (Fing_leadT[i][j] + Fing_leadT[i][j+2]);
+                hFING_lead_lead[Fing_leadChan[i][j]] ->Fill(Fing_LeadDiff[Fing_leadChan[i][j]]);
+                pOutput -> pFing_LeadDiff[Fing_leadChan[i][j]]  = Fing_LeadDiff[Fing_leadChan[i][j]];
+                pOutput -> pFing_LeadPlus[Fing_leadChan[i][j]] =  Fing_LeadPlus[Fing_leadChan[i][j]];          
+                }
 
-        //Trigger - Lead
+        ///Trigger - Lead
         if(Fing_leadT[i][j]>0 && Fing_leadT[0][0]>0){
 
           Fing_SC41_diff[Fing_leadChan[i][j]] =  (Fing_leadT[0][0] - Fing_leadT[i][j]);
@@ -1700,34 +1752,65 @@ void EventAnlProc::Make_Finger_Histos(){
           // cout << "ev " << event_number  << " i "<<i << " j " <<j << " Fing_leadT[0][0] " << Fing_leadT[0][0] <<" Fing_leadT[i][j] " << Fing_leadT[i][j] <<" Fing_SC41_diff " << Fing_SC41_diff[Fing_leadChan[i][j]]<<  " Fing_leadChan[i][j] " << Fing_leadChan[i][j] <<endl;
           hFING_trig_lead[Fing_leadChan[i][j]] ->Fill(Fing_SC41_diff[Fing_leadChan[i][j]]);
         }
-        //Time/Threshold
-       // if(Fing_TOT[i][j]>0){
-            
-            if(Fing_leadChan[i][j]>0 && Fing_TOT[i][j]>0){         
-                ///ToT to Energy conversion, Tau needs to be checked 
-                FingToT_E[i][j] = 2*exp(Fing_TOT[i][j]/1000000);
+        ///Time/Threshold for PMT up and PMT down sum
+           if(Fing_leadChan[i][j]>17){
+                Fing_ToT_UpDown[i][j] = (Fing_trailT[i][j+1]-Fing_leadT[i][j]) + (Fing_trailT[i][j-1]- Fing_leadT[i][j-2]);
+          //  }
+//      cout <<"1) event " << event_number << " Fing_trailT[i][j+1] " << Fing_trailT[i][j+1] <<" Fing_leadT[i][j] " << Fing_leadT[i][j] <<  " Fing_trailT[i][j-1] " << Fing_trailT[i][j-1] <<" Fing_leadT[i][j-2] " << Fing_leadT[i][j-2]  << " Fing_ToT_UpDown[i][j] " << Fing_ToT_UpDown[i][j] <<" Fing_leadChan[i][j] " << Fing_leadChan[i][j] << " Fing_tamex_ch[i][j] " << Fing_tamex_ch[i][j]<<  " i " << i << " j " << j <<endl;
+            hFING_ToT_StripID_UpDown -> Fill(Fing_ToT_UpDown[i][j],Fing_leadChan[i][j]);
+            ///ToT for the Maximum value in a given event
+            if((Fing_tamex_ch[i][j] && Fing_tamex_ch[i][j]+1) >0 && maxToT_added_Chan>17){
+               hFING_ToT_StripID_UpDown_max -> Fill(maxToT_added,maxToT_added_Chan);
+        }
+        ///Get position from ToT 
+        if(Fing_TOT[i][j]>0  ){
+            Fing_pos_ToT_max[maxToT_added_Chan] = (Fing_TOT[i][j]/maxToT_added);
+            Fing_pos_ToT[i][j] = (Fing_TOT[i][j]/Fing_ToT_UpDown[i][j]);
+     
+          if(Fing_pos_ToT[i][j]>0){
+            hFING_Pos_ToT -> Fill(Fing_leadChan[i][j], Fing_pos_ToT[i][j]);
+            if( maxToT_added_Chan>17){
+            hFING_Pos_ToT_Max ->Fill(Fing_leadChan[i][j], Fing_pos_ToT_max[Fing_leadChan[i][j]]);
+            }
+        }
+          //  cout << " event " << event_number <<" Fing_TOT[i][j] " << Fing_TOT[i][j] <<" Fing_ToT_UpDown[i][j] " << Fing_ToT_UpDown[i][j] << " Fing_pos_ToT[i][j] " << Fing_pos_ToT[i][j] << " i " << i << " j " << j <<endl;  
+        }
+            if(Fing_leadChan[i][j]>0){         
+                ///ToT (Only up) to Energy conversion, Tau needs to be checked 
+                FingToT_E[i][j] = 2*exp(Fing_pos_ToT[i][j]/1000000);
                //cout <<"FingToT_E " << FingToT_E[i][j] <<" Fing_TOT[i][j] "<< Fing_TOT[i][j]<< " i " << i << " j " << j <<endl;  
                 hFING_ToT_StripID_Exp ->Fill( FingToT_E[i][j], Fing_leadChan[i][j]);
                 hFING_ToT[Fing_leadChan[i][j]]->Fill(Fing_TOT[i][j]);
                 hFING_ToT_StripID ->Fill(Fing_TOT[i][j], Fing_leadChan[i][j]);
                 pOutput-> pFing_TOT[i][j] = Fing_TOT[i][j]; 
-              
-//                 if(Fing_leadChan[i][j] % 2 == 1){
-//                    // cout<< " Fing_leadChan[i][j] " << Fing_leadChan[i][j] << endl;
-//                 /*hFING_ToT[Fing_leadChan[i][j]]->Fill(Fing_TOT[i][j]);
-//                 hFING_ToT_StripID ->Fill(Fing_TOT[i][j], Fing_leadChan[i][j]);  */  
-//                 }
-                                
-                            }
-                       // }
+                               
                     }
-
+           }
         firedPmtNumber = Fing_leadChan[i][j];
-        dataSetPerEvent[firedPmtNumber] = Fing_LeadDiff[Fing_leadChan[i][j]];
-        totaltimeEvent[firedPmtNumber] = Fing_LeadPlus[Fing_leadChan[i][j]];
+        dataSetPerEvent[Fing_leadChan[i][j]] = Fing_LeadDiff[Fing_leadChan[i][j]];
+        totaltimeEvent[Fing_leadChan[i][j]] = Fing_LeadPlus[Fing_leadChan[i][j]]/1E3;
+        
+      if(Fing_leadChan[i][j]>-1){
+      downData = dataSetPerEvent[Fing_leadChan[i][j]];
+      total_time = totaltimeEvent[Fing_leadChan[i][j]];
+//      cout <<"2event " << event_number <<" downData " <<downData << " dataSetPerEvent[fingchan] "<<dataSetPerEvent[Fing_leadChan[i][j]] << " total_time " <<  total_time << " Fing_leadChan[i][j] " << Fing_leadChan[i][j]<<endl;
+      
+      
+      
+      ///Needs testing 
+      pOutput -> pFing_downData = downData;
+      pOutput -> pFing_total_time = total_time;
+      ///Lead-lead/lead+lead
+      if(Fing_leadChan[i][j]>0){
+       Fing_ratio = Fing_LeadDiff[Fing_leadChan[i][j]]/total_time;
+      // cout <<"Fing_ratio "<<Fing_ratio <<" Fing_LeadDiff[Fing_leadChan[i][j]] " << Fing_LeadDiff[Fing_leadChan[i][j]] <<" total_time " << total_time << endl;
+       hFING_Pos->Fill(Fing_leadChan[i][j], Fing_ratio);
         //pmtSetPerEvent[iter] =  Fing_leadChan[i][j];
+       //if (event_number==2157836){
+ //cout <<"1) Fing_ratio " <<Fing_ratio << " Fing_LeadDiff[Fing_leadChan[i][j]] "<< Fing_LeadDiff[Fing_leadChan[i][j]]<<" Fing_LeadPlus[Fing_leadChan[i][j]] " << Fing_LeadPlus[Fing_leadChan[i][j]] <<endl;  
         totalFiredPMT++;
-      }
+            }
+        }
     }
     if(maxToT>0){          
                  hFING_MaxToT[maxToTChan]->Fill(maxToT);
@@ -1738,44 +1821,45 @@ void EventAnlProc::Make_Finger_Histos(){
     }
     
   //////E.Sahin June 2019   pos vs strip calc
-  for(int st=1; st<51; st++){
-
-    if (st%2==0){
-//      upData = dataSetPerEvent[st];
-      downData = dataSetPerEvent[st-1];
-      total_time = totaltimeEvent[st-1];
-      ///Needs testing 
-      pOutput -> pFing_downData = downData;
-      pOutput -> pFing_total_time = total_time;
-      
-//       pmtUp = st;
-//       pmtDown = st-1;
-      //  cout << st << endl;
-    }
-
-    else{
-//      upData = dataSetPerEvent[st-1];
-      downData = dataSetPerEvent[st];
-      total_time = totaltimeEvent[st];
-      pOutput -> pFing_downData = downData;
-      pOutput -> pFing_total_time = total_time;
-
-//       pmtUp = st-1;
-//       pmtDown = st;
-
-      // cout << "upData  " << upData << "  downData  " << downData << " st " << st << endl;
-
-    }
-    if(downData>-100){
-
-//      double sum = upData + downData;
-     // double ratio = upData / sum;
-     hFING_Pos->Fill(st,downData/total_time);
-      //////////Histogram filling///do not forget ratio
-    }
-  }
-}
-
+  //if (event_number==2157836){
+  
+//     for(int m=0; m<Fing_firedTamex; m++){
+//         for(int n=0; n<Fing_iterator[m]; n++ ){
+// //
+//    // if (st%2==0){
+// //      upData = dataSetPerEvent[st];
+// 
+// //       pmtUp = st;
+// //       pmtDown = st-1;
+//       //  cout << st << endl;
+//   //  }
+// 
+//     //else{
+//     // upData = dataSetPerEvent[st-1];
+// //       downData = dataSetPerEvent[st];
+// //       total_time = totaltimeEvent[st];
+// //       pOutput -> pFing_downData = downData;
+// //       pOutput -> pFing_total_time = total_time;
+// //      cout  <<"3event " << event_number <<" downData " <<downData <<  " total_time " <<  total_time << " st " << st<<endl;
+// 
+// //       pmtUp = st-1;
+// //       pmtDown = st;
+// 
+//       // cout << "upData  " << upData << "  downData  " << downData << " st " << st << endl;
+// 
+//     //}
+//   //  if(downData>-100){
+// 
+// //      double sum = upData + downData;
+//      // double ratio = upData / sum;
+//     
+//       //////////Histogram filling///do not forget ratio
+//           }
+//         }
+      }
+     }
+   }
+   
 
     /**----------------------------------------------------------------------------------------------**/
     /**--------------------------- FATIMA - Plastic Online Correlations -----------------------------**/
@@ -1850,7 +1934,7 @@ void EventAnlProc::Make_Fat_Plas_Histos(){
   }
             ///Get bPLASTIC Time///
             bPlasTDChits = 0;
-  for (int i = 0; i<bPlasTDCFired; i++){
+    for (int i = 0; i<bPlasTDCFired; i++){
 
             /// Plastic TDC
             int bPlasTDCID_bPlasFatCorr = bPlasTDCID[i];
@@ -1923,6 +2007,7 @@ void EventAnlProc::Make_Fat_Plas_Histos(){
                 ///PM-Fatima dT - SiPM-bPlas dT average
                 Fat_PM_bPlasFatCorr[Fat_bPlasTDCIDMain[i]] =  pOutput->pFat_Ch_dT[Fat_bPlasTDCIDMain[i]];
                 Fat_PMdT_bPlasdT_bPlasFatCorr[Fat_bPlasTDCIDMain[i]] = (Fat_PM_bPlasFatCorr[Fat_bPlasTDCIDMain[i]] - bPlas_SiPM_dT_bPlasFatCorr_avg);
+                
                 hFat_bplas_Corr_SiPM_Dets[Fat_bPlasTDCIDMain[i]] -> Fill(Fat_PMdT_bPlasdT_bPlasFatCorr[Fat_bPlasTDCIDMain[i]]);
 
                 if(bPlas_SC41_dT_bPlasFatCorr_avg>0){
