@@ -156,20 +156,20 @@ private:
 //FINGER
     int amount_hit_tamex;
     int iterator[4];
-    double trigger_coarse[100];
-    double trigger_fine[100];
+    double trigger_coarse[32];
+    double trigger_fine[32];
     int leading_array[4][32];
     int leading_hits[4];
     int trailing_hits[4];
-    int phys_channel[4][48];
+    int phys_channel[4][32];
     int leading_hits_ch[4][32];
     int trailing_hits_ch[4][32];
-    UInt ch_ID[4][48];
+    UInt ch_ID[4][32];
 
-    double coarse_T_edge_lead[4][100];
-    double coarse_T_edge_trail[4][100];
-    double fine_T_edge_lead[4][100];
-    double fine_T_edge_trail[4][100];
+    double coarse_T_edge_lead[4][32];
+    double coarse_T_edge_trail[4][32];
+    double fine_T_edge_lead[4][32];
+    double fine_T_edge_trail[4][32];
 
     bool fired_tamex[4];
 
@@ -353,18 +353,18 @@ public:
 	//temporary FATIMA getters
 	  int get_FAT_det_fired();
 	  int get_FAT_id(int i);
-          double get_FAT_E(int i);
-          double get_FAT_ratio(int i);
-          double get_FAT_t(int i);
-          double get_FAT_t_qdc(int i);
+      double get_FAT_E(int i);
+      double get_FAT_ratio(int i);
+      double get_FAT_t(int i);
+      double get_FAT_t_qdc(int i);
 
-          int get_FAT_QDCs_fired();
-          int get_FAT_QDC_id(int i);
-          double get_FAT_QLong(int i);
-          double get_FAT_QShort_Raw(int i);
-          double get_FAT_QLong_Raw(int i);
-          ULong64_t get_FAT_QDC_t_Coarse(int i);
-          double get_FAT_QDC_t_Fine(int i);
+      int get_FAT_QDCs_fired();
+      int get_FAT_QDC_id(int i);
+      double get_FAT_QLong(int i);
+      double get_FAT_QShort_Raw(int i);
+      double get_FAT_QLong_Raw(int i);
+      ULong64_t get_FAT_QDC_t_Coarse(int i);
+      double get_FAT_QDC_t_Fine(int i);
 
       int get_FAT_TDCs_fired();
 	  int get_FAT_TDC_id(int i);
@@ -388,6 +388,7 @@ public:
     double get_FINGER_coarse_trail(int,int);
     double get_FINGER_fine_trail(int,int);
     double get_FINGER_TOT(int,int);
+    double get_FINGER_TOT_added(int,int);
     int get_FINGER_tamex_hits();
 
 	//temporary PLASTIC getters

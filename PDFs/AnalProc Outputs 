@@ -1,0 +1,39 @@
+pbPlasQDCFired = Fired QDC plastic
+pbPlasQDCGainMatch_i[Ch.] = Plastic Energy 1
+pbPlas_QDCID[hits] PlasQDCID
+
+pbPlasTDCFired =  Fired TDC Plastic
+pbPlas_TDCID[Hits] = Plastic TDC ID
+pbPlasTDC_TS_Calib[TDC ID] = Calib TDC raw PLastics
+pbPlas_TDC_Multiplicity[TDC ID] = TDC Mulitplicity Plas 
+ pbPlas_SiPM_dT_Calib[TDC ID] = Plas SiPM1 - SiPM Ch.X
+ pbPlas_SC41_dT[TDC ID] = Plas SC41-SiPm Ch.X
+ 
+ 
+ pFatQDCFired = Fired Fat QDC
+ pFatQDCID[hits] = FatQDC ID
+ pFat_QDC_GainMatch[Fat_QDC_IDMain_i] = Fatima energy
+ pFatTDCFired = fired fatima TDC
+ pFatTDCID = TDC fatima channel
+ pFat_TDC_T_Main[Fat_TDC_IDMain] = Fatima Timestamp
+ pFat_CHA_0_TDC = Fatima Channel 0 Time
+ pFat_SC41_dT_Calib[Fat_TDC_IDMain] = Gainmatched SC41 - SiPM Ch.x
+ pFat_TDC_Multipl_perCh[Fat_TDC_IDMain] = Fatima TDC multiplicity
+ pFat_cha_dT[Fat_TDC_IDMain] = Fatima SiPM 0 - SiPM Ch.x
+ 
+ pGalFired = Fired Galileo 
+  pGalID[i] = Galileo Chan
+  pGalT[GalID[i]] = Galileo Time
+  pGalE_Cal_i[GalIDMain_i] = Galileo calibrated energy 
+  pGal_chan_time_diff = Galileio Ch Ch Time diff 
+  
+  pFing_firedTamex = Fired Tamex Module
+  pFing_iterator[Fired Tamex] = Fired Finger Tamex Chan
+  pFing_leadT = Finger lead T
+  pFing_LeadDiff[Fing_leadChan[i][j]] = Finger Lead - Lead 
+  pFing_LeadPlus[Fing_leadChan[i][j]] = Finger Lead + Lead
+  pFing_SC41_diff[Fing_leadChan[i][j]] =  Finger SC41 - Ch.x
+  pFing_TOT[i][j] = Finger ToT
+  pFing_downData =  Down strip (Lead - Lead)
+  pFing_total_time =  Finger total time (Lead + Lead)
+ 

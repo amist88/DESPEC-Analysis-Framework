@@ -148,7 +148,7 @@ void  EventUnpackStore::Clear(Option_t *t)
       
             fGal_Pileup = -1;
             fGal_fired = -1;
-            fGal_WR = 0;
+            //fGal_WR = 0;
             
                 for (int i=0; i<32; i++){
                     fGal_ID[i] = 0;
@@ -166,6 +166,7 @@ void  EventUnpackStore::Clear(Option_t *t)
             ffing_iterator[i] = -1;
             ffing_Trig[i] = 0;
             for(int j=0; j<32; j++){
+                ffing_tamexCh[i][j] = 0;
                 ffing_Lead_Phys_Chan[i][j] = 0;
                 ffing_Trail_Phys_Chan[i][j] = 0;
                 ffing_chID[i][j] = 0;
@@ -173,7 +174,7 @@ void  EventUnpackStore::Clear(Option_t *t)
             for(int k=0; k<100; k++){    
                 ffing_Lead_T[i][k] = 0;
                 ffing_Trail_T[i][k] = 0;
-                
+                ffing_TOT_added[i][k] =0;
                 ffing_TOT[i][k] = 0;
                 ffing_lead_coarse[i][k] = 0;
                 ffing_lead_fine[i][k]= 0;
@@ -295,7 +296,7 @@ void  EventUnpackStore::ClearEvent()
       
         fGal_Pileup = -1;
         fGal_fired = -1;
-        fGal_WR = 0;
+      //  fGal_WR = 0;
        for (int i=0; i<32; i++){
         fGal_ID[i] = 0;
         fGal_E[i] = 0;
@@ -311,6 +312,7 @@ void  EventUnpackStore::ClearEvent()
             ffing_iterator[i] = -1;
             ffing_Trig[i] = 0;
             for(int j=0; j<32; j++){
+                ffing_tamexCh[i][j] = 0;
                 ffing_Lead_Phys_Chan[i][j] = 0;
                 ffing_Trail_Phys_Chan[i][j] = 0;
                 ffing_chID[i][j] = 0;
@@ -318,7 +320,7 @@ void  EventUnpackStore::ClearEvent()
             for(int k=0; k<100; k++){    
                 ffing_Lead_T[i][k] = 0;
                 ffing_Trail_T[i][k] = 0;
-                
+                ffing_TOT_added[i][k] = 0;
                 ffing_TOT[i][k] = 0;
                 ffing_lead_coarse[i][k]= 0;
                 ffing_lead_fine[i][k]= 0;
