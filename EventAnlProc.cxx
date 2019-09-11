@@ -1736,14 +1736,14 @@ void EventAnlProc::Do_Finger_Histos(EventAnlStore* pOutput){
                 pOutput -> pFing_leadT[i][j] = Fing_leadT[i][j];
     
             ///Lead - Lead Time
-                   if(Fing_leadT[i][j]>0&&Fing_leadT[i][j+2]>0){ 
-                if(Fing_leadChan[i][j] % 2 == 0){//Even Strips
+                 if(Fing_leadT[i][j]>0&&Fing_leadT[i][j+2]>0){ 
+                if(Fing_leadChan[i][j] % 2 == 0){//Even Strips (for top bottom PMT matching)
                 Fing_LeadDiff[Fing_leadChan[i][j]] = (Fing_leadT[i][j] - Fing_leadT[i][j+2]);
-               
+                Fing_LeadPlus[Fing_leadChan[i][j]] = (Fing_leadT[i][j] + Fing_leadT[i][j+2]);
                 }
                  if(Fing_leadChan[i][j] % 2 == 1){ //Odd Strips
                 Fing_LeadDiff[Fing_leadChan[i][j]] = (Fing_leadT[i][j+2] - Fing_leadT[i][j]);
-              
+                Fing_LeadPlus[Fing_leadChan[i][j]] = (Fing_leadT[i][j+2] + Fing_leadT[i][j]);
                 }
             
                 Fing_LeadPlus[Fing_leadChan[i][j]] = (Fing_leadT[i][j] + Fing_leadT[i][j+2]);
