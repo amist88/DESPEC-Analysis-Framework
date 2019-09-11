@@ -4,7 +4,7 @@
 //       The GSI Online Offline Object Oriented (Go4) Project
 //         Experiment Data Processing at EE department, GSI
 //-----------------------------------------------------------------------
-// Copyright (C) 2000- GSI Helmholtzzentrum f�r Schwerionenforschung GmbH
+// Copyright (C) 2000- GSI Helmholtzzentrum fï¿½r Schwerionenforschung GmbH
 //                     Planckstr. 1, 64291 Darmstadt, Germany
 // Contact:            http://go4.gsi.de
 //-----------------------------------------------------------------------
@@ -142,7 +142,7 @@ class EventAnlProc : public TGo4EventProcessor {
      void Do_Fatima_Histos(EventAnlStore* pOutput);
      void Do_Galileo_Histos(EventAnlStore* pOutput);
      void Do_Finger_Histos(EventAnlStore* pOutput);
-     void Do_Fing_Plas_Histos();
+     void Do_Fing_Plas_Histos(EventAnlStore* pOutput);
      void Do_Fat_Plas_Histos(EventAnlStore* pOutput);
       // TH1 *GermaniumCal;
 
@@ -192,7 +192,13 @@ class EventAnlProc : public TGo4EventProcessor {
 //       std::vector<AidaHit> Decays;
              std::vector<AidaCluster> EventsToClusters(std::vector<AidaEvent> const&);
             AidaHit ClusterPairToHit(std::pair<AidaCluster, AidaCluster> const&);
-
+            
+            //FRS histograms
+            TH2 *hFRS_z1_z2;
+            TH2 *hFRS_AoQ_s2X;
+            
+            
+            
             TH1 *hPLAS_QDCCalib1[32];
             TH1 *hPLAS_QDCCalib1Sum;
             TH1 *hPLAS_QDC1_hits;
@@ -268,8 +274,8 @@ class EventAnlProc : public TGo4EventProcessor {
             TH1 *hFAT_TDCdt_refCha_Sum_M3;
             TH1 *hFAT_TDCdt_refCha_Sum_gated;
             TH1 *hFAT_TDCdt_refSC41_Sum_gated;
-            TH2 *hFAT_QDC_vs_TDC_SiPMdT_Ch[50];
-            TH2 *hFAT_QDC_vs_TDC_SiPMdT;
+            TH2 *hFAT_QDC_vs_TDC_PMT_dT_Ch[50];
+            TH2 *hFAT_QDC_vs_TDC_PMT_dT;
             TH2 *hFAT_QDC_vs_TDC_SC41dT_Ch[50];
             TH2 *hFAT_QDC_vs_TDC_SC41dT;
             TH1 *hFAT_test[50];
@@ -301,6 +307,7 @@ class EventAnlProc : public TGo4EventProcessor {
             TH2 *hFING_ToT_StripID_UpDown_max;
             TH2 *hFING_Pos_ToT;
             TH2 *hFING_Pos_ToT_Max;
+            TH1 *hFING_Pos_ToT_gated;
             TH2 *hFING_MaxToT_StripID;
             TH2 *hFING_MaxToTExp_StripID;
             TH2 *hFING_ToT_lead_lead[52];
@@ -308,7 +315,7 @@ class EventAnlProc : public TGo4EventProcessor {
             TH2 *hFING_ToT_StripID_Exp;
             TH1 *hFING_fcoarse[52]; 
             TH1 *hFING_ffine[52];
-          
+            TH2* hFING_LeadLead_StripID;
             
             TH1 *hFat_minus_plasticTDC[50];
             TH1 *hFat_minus_plasticTDCFatGate[50];
@@ -323,6 +330,8 @@ class EventAnlProc : public TGo4EventProcessor {
             TH2 *h_FingStrip_PlasID;
             TH2 *h_FingToT_PlasE; 
             TH2 *h_FingToT_PlasT[32];
+            TH1 *h_FingToT_PlasQDC;
+            TH2 *h_Fing_Pos_ToT_PlasEgated;
             
             TSCNParameter *fParam1;
             TGo4Picture *picPMT;
