@@ -362,7 +362,7 @@ Bool_t EventAnlProc::BuildEvent(TGo4EventElement* dest)
             
             //SC41 Trigger
       if (FatTDCID[i]==40){
-            SC41 = pInput ->fSC41[i]; //in 25ps
+            SC41 = pInput ->fSC41[i]*25; //in 25ps
             SC41_ns = SC41*0.025; //SC41 signal in ns
       }
     }
@@ -456,22 +456,24 @@ Bool_t EventAnlProc::BuildEvent(TGo4EventElement* dest)
                 
                 ///Note: ToT value here is only for the 'up' PMTs
                     Fing_TOT[i][j] = pInput->ffing_TOT[i][j];
+                   // cout <<"1) ev "<< event_number << " Fing_TOT[i][j] " << Fing_TOT[i][j] <<"  Fing_leadChan[i][j] " <<  Fing_leadChan[i][j] << endl;
                     /// Up PMT ToT + Down PMT ToT
                     Fing_TOT_added[i][j] =   pInput->ffing_TOT_added[i][j];
-            //    cout << "1) ev "<< event_number <<" Fing_TOT[i][j] "<< Fing_TOT[i][j] << " i " << i << " j " << j << endl;
-                //for(int l=0;l<Fing_leadChan[i][j]; l++){
+                 
+            
                         if(Fing_chID[i][j] % 2 == 1){
-                             
+         
                           if(maxToT<Fing_TOT[i][j] && Fing_leadChan[i][j]>0 ){
                             
                                 maxToT = Fing_TOT[i][j];
-                                maxToTChan = Fing_leadChan[i][j];
+                                maxToTChan = Fing_leadChan[i][j];             
                         }
+                        
                         //Get max ToT for PMT pairings
                         if(maxToT_added<Fing_TOT_added[i][j]&& Fing_leadChan[i][j]>0 ){
                             maxToT_added = Fing_TOT_added[i][j];
                             maxToT_added_Chan = Fing_leadChan[i][j];
-                            
+                           
                         }
              //  cout <<"2) ev " << event_number <<" maxtot " <<maxToT <<endl;
                     
@@ -479,9 +481,15 @@ Bool_t EventAnlProc::BuildEvent(TGo4EventElement* dest)
             }
           }
     //    if(maxToT>-1){
-    //   cout <<"1a) ev " << event_number <<  " maxToT  " << maxToT <<" maxToTChan " << maxToTChan<< endl;
- 
-            Do_Finger_Histos(pOutput);
+//      if(event_number== 2141588){
+//       cout <<"4) ev " << event_number <<  " maxToT  " << maxToT <<" maxToTChan " << maxToTChan<< endl;
+//        cout <<"5) ev " << event_number <<  " maxToT_added  " << maxToT_added <<" maxToT_added_Chan " << maxToT_added_Chan<< endl;
+//       
+//     }
+
+//     }
+   Do_Finger_Histos(pOutput);
+           
   }
 
 ///------------------------/**Setup for some temporary correlations**/----------------------------------///
@@ -914,18 +922,20 @@ void EventAnlProc::Make_Plastic_VME_Histos(){
    // hPLAS_TimeDiffSiPM_Ch[i] = MakeTH1('D',Form("bPlastic/Timing/TDCdt_SiPM1-SiPm/TDCSiPMdt_Ch.%02d",i),Form("TimeDiff Ch1 - Ch%0d",i),1E5,-2E5,2E5);
     ///new
     hPLAS_TDC_FiredRatio[i] = MakeTH1('D', Form("bPlastic/Timing/TDC1_FiredRatio/TDC_FiredRatio_Ch.%2d",i), Form("TDC1 Ratio CalibTDC/FiredTDC Ch. %2d",i), 4000, 0, 4000);
-    hPLAS_TimeDiff_SC41_Raw[i] = MakeTH1('D',Form("bPlastic/Timing/TDCdt_SC41-SiPMRaw/TDCdT_SC41_Plas_RawCh.%02d",i),Form("SC41-SiPM dT(ns) Raw Ch%0d",i),4E4,0,2E6);
-    hPLAS_TimeDiff_SC41_Calib[i] = MakeTH1('D',Form("bPlastic/Timing/TDCdt_SC41-SiPMCalib/TDCdT_SC41_Plas_Ch.%02d",i),Form("SC41-SiPM dT Calib  Ch%0d",i),4E4,0,2E6);
-    hPLAS_TimeDiff_SC41_Calib_Egated[i] = MakeTH1('D',Form("bPlastic/Timing/EGated/TDCdt_SC41-SiPM/TDCdT_SC41_Plas_EGated_Ch.%02d",i),Form("SC41-SiPM dT Calib  Ch%0d",i),4E4,0,2E6);
+    hPLAS_TimeDiff_SC41_Raw[i] = MakeTH1('D',Form("bPlastic/Timing/TDCdt_SC41-SiPMRaw/TDCdT_SC41_Plas_RawCh.%02d",i),Form("SC41-SiPM dT(ns) Raw Ch%0d",i),5E3,0,5E5);
+    hPLAS_TimeDiff_SC41_Calib[i] = MakeTH1('D',Form("bPlastic/Timing/TDCdt_SC41-SiPMCalib/TDCdT_SC41_Plas_Ch.%02d",i),Form("SC41-SiPM dT Calib  Ch%0d",i),5E3,0,5E5);
+    hPLAS_TimeDiff_SC41_Calib_Egated[i] = MakeTH1('D',Form("bPlastic/Timing/EGated/TDCdt_SC41-SiPM/TDCdT_SC41_Plas_EGated_Ch.%02d",i),Form("SC41-SiPM dT Calib  Ch%0d",i),5E4,0,5E5);
 
     hPLAS_TDC_multich[i] = MakeTH1('D', Form("bPlastic/Stats/TDC_MultiCh/TDCMch%2d",i), Form("TDC channel Multi %2d",i), 50, 0, 50);
+    
+//     hPLAS_EvsdT[i] = MakeTH2('D',Form("bPlastic/Timing/E_vs_dT/E_vs_dT_Ch.%02d",i), Form("E_vs_dT_Ch.%0d",i), 2500, -5000, 0,  2500, 0, 5000);
    // hPLAS_CoincE1E2[i] = MakeTH2('D',Form("bPlastic/Energy/CoincEnergy/Coinc_Energy_Energy_Ch.%02d",i), Form("Coinc_Energy_Energy_Sum_Ch.%0d",i), 500, 0, 5000,  500, 0, 5000);
+    hPLAS_CoincE_dTSiPM_Ch[i] =   MakeTH2('D',Form("bPlastic/Timing/Coinc_Energy_SiPM_dT/Coinc_E_dTCh1-Ch.%02d",i), Form("Energy vs. SiPM1-SiPMCh.%0d",i), 2500, 0, 5000, 2500,-5000,0);
 
 
   }
     //hPLAS_E1E2TimeGated[i] = MakeTH2('D',Form("bPlastic/CoincEEGated/CoincEEGated%02d",i), Form("CoincGated%0d",i), 400, 0, 4000.0,  400, 0, 4000.0);
 
- //   hPLAS_CoincE_dTSiPM_Ch[i] =   MakeTH2('D',Form("bPlastic/Timing/Coinc_Energy_SiPM_dT/Coinc_E_dTCh1-Ch.%02d",i), Form("Energy vs. SiPM1-SiPMCh.%0d",7), 2500, 0, 5000, 2E2,-2E5,2E5);
 
     //Sum spectra
     hPLAS_QDCCalib1Sum = MakeTH1('D',"bPlastic/Energy/QDCSum","QDC Calibrated Sum",2000,0,20000);
@@ -990,10 +1000,13 @@ void EventAnlProc::Do_Plastic_VME_Histos(EventAnlStore* pOutput){
           hPLAS_QDC1_hits->Fill(bPlasQDCID_i);
         
           if(bPlasQDCGainMatch_i[bPlasQDCID_i]>30){
+               if(bPlasQDCID_i<16 ){//temporarily remove the noise for chans>15
+        
              pOutput->pbPlas_QDCGainMatch_i[bPlasQDCID_i] = bPlasQDCGainMatch_i[bPlasQDCID_i];
              hPLAS_QDCCalib1[bPlasQDCID_i]->Fill(bPlasQDCGainMatch_i[bPlasQDCID_i]);
              hPLAS_QDCCalib1Sum->Fill(bPlasQDCGainMatch_i[bPlasQDCID_i]);
                              }
+          }
                ///Energy-Energy Matrix
                 for(int j=0; j<bPlasQDCFired; j++){
                   bPlasQDCID_j = bPlasQDCID[j];
@@ -1043,9 +1056,10 @@ void EventAnlProc::Do_Plastic_VME_Histos(EventAnlStore* pOutput){
        //   }
        //   if(bPlas_TDC_Cha1>0 &&bPlasTDC_TS_Raw[bPlasTDCIDMain]>0){
         //  cout<<"event " << event_number<<" bPlas_TDC_Cha1 " <<bPlas_TDC_Cha1 << " bPlasTDC_TS_Raw[bPlasTDCIDMain] " << bPlasTDC_TS_Raw[bPlasTDCIDMain]<< endl;
-           bPlas_SiPM_dT_Raw[bPlasTDCIDMain] = (bPlas_TDC_Cha1 - bPlasTDC_TS_Raw[bPlasTDCIDMain]);
-           bPlas_SiPM_dT_Calib[bPlasTDCIDMain] = ((bPlas_TDC_Cha1 - bPlasTDC_TS_Raw[bPlasTDCIDMain] )+ fCal->AplasTDC_Chref_dT[bPlasTDCIDMain]);
+           bPlas_SiPM_dT_Raw[bPlasTDCIDMain] = (bPlasTDC_TS[0][1] - bPlasTDC_TS_Raw[bPlasTDCIDMain]);
+           bPlas_SiPM_dT_Calib[bPlasTDCIDMain] = ((bPlasTDC_TS[0][1] - bPlasTDC_TS_Raw[bPlasTDCIDMain] )+ fCal->AplasTDC_Chref_dT[bPlasTDCIDMain]);
            pOutput ->  pbPlas_SiPM_dT_Calib[bPlasTDCIDMain] =   bPlas_SiPM_dT_Calib[bPlasTDCIDMain];
+        
          
            if(bPlasTDCIDMain!=1){
             hPLAS_TimeDiffSiPM_Ch_Raw[bPlasTDCIDMain] -> Fill(bPlas_SiPM_dT_Raw[bPlasTDCIDMain]);
@@ -1078,14 +1092,16 @@ if (bPlas_TDC_Multiplicity[bPlasTDCIDMain] >2)  hPLAS_TimeDiff_SC41_Sum_M3P ->Fi
           }
   /**-----------------------bPlastic Energy gated Timing (gates defined in Correlations.dat)-----------------------------------------**/
            /// NOTE: TDC ID = QDC ID +1 (TDC Ch.0 =SC41)
-            for (int j=0; j<bPlasQDCFired; j++){
+            
 
                 ///Energy-Time matrices
-              if(bPlasQDCID[j] == bPlasTDCIDMain+1 ){
-                if( bPlasTDC_T_Calib[bPlasQDCID[j]]>0){
-                   // hPLAS_CoincE_dTSiPM_Ch[i] -> Fill(bPlasQDCGainMatch_i[7], bPlasTDC_T_Calib[8]);
-                    hPLAS_CoincE_dTSiPM_Sum -> Fill(bPlasQDCGainMatch_i[bPlasQDCID[j]], bPlasTDC_T_Calib[bPlasTDCIDMain+1]);
-                        }
+                if(bPlasQDCGainMatch_i[bPlasTDCIDMain-1]>50){
+           hPLAS_CoincE_dTSiPM_Ch[i] -> Fill(bPlasQDCGainMatch_i[bPlasTDCIDMain-1],  pOutput ->  pbPlas_SiPM_dT_Calib[bPlasTDCIDMain]);
+          // cout << "Energy " << bPlasQDCGainMatch_i[bPlasTDCIDMain-1] << " TDC ID " << bPlasTDCIDMain << " dT " << pOutput ->  pbPlas_SiPM_dT_Calib[bPlasTDCIDMain] <<endl;
+                }
+                   // hPLAS_CoincE_dTSiPM_Sum -> Fill(bPlasQDCGainMatch_i[bPlasQDCID[j]], bPlasTDC_T_Calib[bPlasTDCIDMain+1]);
+                        
+                        for (int j=0; j<bPlasQDCFired; j++){
                     ///Energy Gate
                 if(bPlasQDCGainMatch_i[bPlasQDCID[j]] > fCorrel->GbPlas_Egate_low &&  bPlasQDCGainMatch_i[bPlasQDCID[j]] < fCorrel->GbPlas_Egate_high   ){
                             ///Energy gated SiPM - SiPM x.
@@ -1105,7 +1121,7 @@ if (bPlas_TDC_Multiplicity[bPlasTDCIDMain] >2)  hPLAS_TimeDiff_SC41_Sum_M3P ->Fi
         }
       }
   }
-}
+
 
  /**----------------------------------------------------------------------------------------------**/
  /**--------------------------------------  FATIMA  ----------------------------------------------**/
@@ -1311,7 +1327,7 @@ void EventAnlProc::Make_Fatima_Histos(){
     hFAT_QDC_vs_TDC_PMT_dT_Ch[7] = MakeTH2('D',Form("FATIMA/Timing/Energy_vs._Time_SiPMdT_Ch/Energy_vs._Time_SiPMdT_Ch.%02d", 7),Form("Fatima Energy vs SiPMCh.0-SiPMCh.%02d", 7),4000,0,4000, 250,-2E4,2E4);
     hFAT_QDC_vs_TDC_SC41dT_Ch[7] = MakeTH2('D',Form("FATIMA/Timing/Energy_vs._Time_SC41_Ch/Energy_vs._Time_SC41_Ch.%02d", 7),Form("Fatima Energy vs SC41-SiPMCh.%02d", 7),4000,0,4000, 4E2,0,2E6);
 
-    hFAT_QDCCalib1Sum = MakeTH1('D', "FATIMA/Energy/Fat_EnergySum", "LaBr Energy (all detectors)",4000,0,4000);
+    hFAT_QDCCalib1Sum = MakeTH1('D', "FATIMA/Energy/Fat_EnergySum", "LaBr Energy (all detectors)",40000,0,40000);
     hFAT_hits_QDC       = MakeTH1('D', "FATIMA/Stats/QDC_FAThits", "bPlastic hit pattern QDC1",50,0,50);
     hFAT_E_Mat_Sum = MakeTH2('D', "FATIMA/Energy/Gam-GamSum", "FATIMA Gamma-Gamma (all detectors)",4000,0,4000, 4000,0,4000);
     hFAT_hits_TDC       = MakeTH1('D', "FATIMA/Stats/TDC_FAThits", "FATIMA TDC statistics",50,0,50);
@@ -1328,6 +1344,8 @@ void EventAnlProc::Make_Fatima_Histos(){
     hFAT_TDCdt_refCha_Sum_gated     = MakeTH1('D', "FATIMA/Timing/TDCdt_ref0_Sum_EGated","TDC dT LaBr0 Gamma gated (all detectors)",250,-2E4,2E4);
     hFAT_QDC_vs_TDC_PMT_dT = MakeTH2('D',"FATIMA/Energy_vs._Time_PMdT","Energy_vs.Time_PMT_dT",4000,0,4000, 250,-2E4,2E4);
     hFAT_QDC_vs_TDC_SC41dT = MakeTH2('D',"FATIMA/Energy_vs._Time_S41dT","Energy_vs._Time_S41dT",4000,0,4000,4E2,0,2E6);
+    
+     hFAT_SC41_check      = MakeTH1('D', "FATIMA/Timing/dt_SC41_40_41", "SC41 diff long-shor cable", 4E4,-2E6,2E6);
 
 }
 ///-----------------------------------------------------------------------------------------------------------------------------------------------------------------------///
@@ -1423,20 +1441,31 @@ void EventAnlProc::Do_Fatima_Histos(EventAnlStore* pOutput){
            hFAT_TDC_Multipl_ch[i] -> Fill(Fat_TDC_Multipl_perCh[Fat_TDC_IDMain]);
            hFAT_TDC_Multipl_PerChan -> Fill(Fat_TDC_Multipl_perCh[Fat_TDC_IDMain]);
 
-         
+           hFAT_SC41_check->Fill(Fat_TDC_T_Main[41]-Fat_TDC_T_Main[40]);
+        // cout <<"event " << event_number << " Fat_TDC_T_Main[41] " << Fat_TDC_T_Main[40] << " Fat_TDC_T_Main[41] " << Fat_TDC_T_Main[41]<< endl;
 
            ///Hit pattern
            hFAT_hits_TDC->Fill(Fat_TDC_IDMain);
             ///SC41 (TDC Ch.40) - FAT SiPM Ch.x
-           //if( Fat_TDC_T_Main[Fat_TDC_IDMain]>fCorrel->GFat_TRawgate_low && Fat_TDC_T_Main[Fat_TDC_IDMain]<fCorrel->GFat_TRawgate_high){
-            Fat_SC41_dT_Raw[Fat_TDC_IDMain] = (SC41*25 -  Fat_TDC_T_Main[Fat_TDC_IDMain]); //ps
+           if( Fat_TDC_T_Main[Fat_TDC_IDMain]>fCorrel->GFat_TRawgate_low && Fat_TDC_T_Main[Fat_TDC_IDMain]<fCorrel->GFat_TRawgate_high){
+               
+            Fat_SC41_dT_Raw[Fat_TDC_IDMain] = (SC41 -  Fat_TDC_T_Main[Fat_TDC_IDMain]); //ps
             Fat_SC41_dT_Calib[Fat_TDC_IDMain]  = Fat_SC41_dT_Raw[Fat_TDC_IDMain] + fCal-> TFatTDC_SC41dT[Fat_TDC_IDMain];
             pOutput ->  pFat_SC41_dT_Calib[Fat_TDC_IDMain] =  Fat_SC41_dT_Calib[Fat_TDC_IDMain];
-            //cout<<"Fat_SC41_dT_Calib[Fat_TDC_IDMain]  " << Fat_SC41_dT_Calib[Fat_TDC_IDMain]  << endl;
-            ///SC41 - Fatima TDC Only take the first hit per channel (Sultan)
+            if( FatQDCID[i] == Fat_TDC_IDMain){
+                double Mindiff = Fat_SC41_dT_Calib[0];
+               if(Mindiff>Fat_SC41_dT_Calib[i]) Mindiff =Fat_SC41_dT_Calib[i];
+                
+        // cout<<"event " << event_number <<" Fat_SC41_dT_Calib[Fat_TDC_IDMain]  " << Fat_SC41_dT_Calib[Fat_TDC_IDMain]  << " SC41 " <<SC41 <<  "  Fat_TDC_T_Main[Fat_TDC_IDMain] " <<  Fat_TDC_T_Main[Fat_TDC_IDMain] <<" Fat_TDC_IDMain " << Fat_TDC_IDMain << " FatQDCID[i] " << FatQDCID[i] << " Mindiff " << Mindiff<<endl;
+         
+            }  
+         ///SC41 - Fatima TDC Only take the first hit per channel (Sultan)
            Fat_TDC_Incr = 0;
             for(int j=0; j<=i; j++){
              if (Fat_TDC_IDMain != FatTDCID[j] ) Fat_TDC_Incr++;
+             
+             
+             
             }
             //if(Fat_TDC_Incr == i  && Fat_TDC_IDMain < 40 ){
              for (int j = 0; j< FatQDCFired; j++){
@@ -1501,7 +1530,7 @@ void EventAnlProc::Do_Fatima_Histos(EventAnlStore* pOutput){
                    }
                 }
              }
-           //}
+           }
         }
     }
 
@@ -1627,10 +1656,11 @@ void EventAnlProc::Make_Finger_Histos(){
 
   for (int i =0; i<52; i++){
     hFING_lead_lead[i] = MakeTH1('D',Form("FINGER/lead-lead/lead-leadCh.%02d",i),Form("lead-leadCh.%02d",i),1000, -50000, 50000.);
-    hFING_ToT[i] = MakeTH1('D',Form("FINGER/TOT/TOTCh%02d",i),Form("TOT Ch(%2d)",i), 2001, -100000., 100000.);
+    hFING_ToT[i] = MakeTH1('D',Form("FINGER/TOT/TOTCh%02d",i),Form("TOT Ch(%2d)",i), 4001, 0., 100000.);
     hFING_trig_lead[i] = MakeTH1('D',Form("FINGER/trig-lead/trig-leadCh.%02d",i),Form("trig-leadCh.%02d",i), 500, -25000., 25000.);
     //hFING_ToT_lead_lead[i] = MakeTH2('D',Form("FINGER/ToT-Trig-Lead/StatCh%02d",i),Form("ToT_LeadCh%02d",i), 500, 0., 50., 200, 300., 400.);
-    hFING_MaxToT[i] = MakeTH1('D',Form("FINGER/MAXTOT/MAXTOTCh%02d",i),Form("MAXTOT Ch(%2d)",i), 1000, 0., 10000.);
+    hFING_MaxToT[i] = MakeTH1('D',Form("FINGER/MAXTOT/MAXTOTCh%02d",i),Form("MAXTOT Ch(%2d)",i), 1000, 0., 100000.);
+    hFING_ToTMaxAdded[i] = MakeTH1('D',Form("FINGER/MAXTOTAdded/MAXTOTAdded_Ch%02d",i),Form("MAXTOT Added Ch(%2d)",i), 1000, 0., 100000.);
     hFING_fcoarse[i] = MakeTH1('D',Form("FINGER/PADI_Coarse/CoarseCh%02d",i),Form("Coarse%2d",i), 1E6, 0., 1.2E7);
     hFING_ffine[i] = MakeTH1('D',Form("FINGER/PADI_Fine/FineCh%02d",i),Form("Fine%2d",i), 12625, -500., 50000.);
     hFING_trail_trail[i]= MakeTH1('D',Form("FINGER/trail-trail/trail-trailCh.%02d",i),Form("trail-trailCh.%02d",i),1000, -50000., 50000.);
@@ -1638,21 +1668,24 @@ void EventAnlProc::Make_Finger_Histos(){
 }
 
   hFING_Hit_Pat = MakeTH1('I',"FINGER/Stats/FINGER_Hit_Pat","FINGER Hit Pattern",52,0,52);
-  hFING_ToT_StripID = MakeTH2('I',"FINGER/TOT_vs_PMT","ToT vs Strip number", 2001, -100000., 100000., 52, 0, 52);
-  hFING_MaxToT_StripID = MakeTH2('I',"FINGER/MaxTOT_vs_PMT","MaxToT vs Strip number", 2001, -100000., 100000., 52, 0, 52);
-  hFING_Pos = MakeTH2('D',"FINGER/Position","Time ratio vs Strips",51,1,51, 1000, -10., 10.);
-  hFING_Pos_ToT = MakeTH2('D',"FINGER/Position_ToT","ToT ratio vs Strips",51,1,51, 5000, -1., 1.);
-  hFING_Pos_ToT_Max = MakeTH2('D',"FINGER/Position_ToTMax","ToT ratio vs Strips Max",51,1,51, 5000, -1., 1.);
-  hFING_Pos_ToT_gated = MakeTH2('D',"FINGER/positionToTGated","ToT ratio vs Strips (2D poly gated)",51,1,51, 5000, -1., 1.);
+  hFING_SC41_ToT = MakeTH1('I',"FINGER/SC41_ToT","FINGER Sc41 ToT",4001, 0., 100000.);
+
+  hFING_ToT_StripID = MakeTH2('I',"FINGER/TOT_vs_PMT","ToT vs Strip number", 4001, 0., 100000., 52, 0, 52);
+  hFING_MaxToT_StripID = MakeTH2('I',"FINGER/MaxTOT_vs_PMT","MaxToT vs Strip number", 4001, 0., 100000., 52, 0, 52);
+  
+  hFING_Pos = MakeTH2('D',"FINGER/Position","Time ratio vs Strips",52,0,52, 1000, -10., 10.);
+  hFING_Pos_ToT = MakeTH2('D',"FINGER/Position_ToT","ToT ratio vs Strips",52,0,52, 5000, 0., 1.);
+  hFING_Pos_ToT_Max = MakeTH2('D',"FINGER/Position_ToTMax","ToT ratio vs Strips Max",52,0,52, 5000, 0., 1.);
+  hFING_Pos_ToT_gated = MakeTH2('D',"FINGER/positionToTGated","ToT ratio vs Strips (2D poly gated)",52,0,52, 5000, 0., 1.);
 
   hFING_LeadLead_StripID = MakeTH2('I',"FINGER/LeadLead_vs_PMT","Lead-Lead vs Strip number", 2001, -100000., 100000., 52, 0, 52);
   
   hFING_ToT_StripID_Exp= MakeTH2('I',"FINGER/TOT_vs_PMT_Exp","ToT exponential vs Strip number", 1000, 0., 10000., 52, 0, 52);
   hFING_MaxToTExp_StripID = MakeTH2('I',"FINGER/MaxTOTExp_vs_PMT","MaxToT exponential vs Strip number", 1000, 0., 100000., 52, 0, 52);
 
-  hFING_ToT_StripID_UpDown = MakeTH2('I',"FINGER/TOT_vs_PMT_sumpmt","ToT vs Strip number sum PMT", 2001, -100000., 100000., 52, 0, 52);
+  hFING_ToT_StripID_UpDown = MakeTH2('I',"FINGER/TOT_vs_PMT_sumpmt","ToT vs Strip number sum PMT", 4001, 0., 100000., 52, 0, 52);
      
-  hFING_ToT_StripID_UpDown_max = MakeTH2('I',"FINGER/TOT_vs_PMT_sumpmt_MAX","ToT vs Strip number sum PMT MAX", 2001, -100000., 100000., 52, 0, 52);
+  hFING_ToT_StripID_UpDown_max = MakeTH2('I',"FINGER/TOT_vs_PMT_sumpmt_MAX","ToT vs Strip number sum PMT MAX", 4001, 0., 100000., 52, 0, 52);
 }
 ///-----------------------------------------------------------------------------------------------------------------------------------------------------------------------///
 void EventAnlProc::Do_Finger_Histos(EventAnlStore* pOutput){
@@ -1726,7 +1759,7 @@ void EventAnlProc::Do_Finger_Histos(EventAnlStore* pOutput){
             }
             //cout << "1)event " << event_number << "Fing_TOT_added[i][j] " << Fing_TOT_added[i][j] <<" Fing_leadChan[i][j] "<<Fing_leadChan[i][j]<<endl;
             
-    //cout << "2)event " << event_number << "maxToT_added " << maxToT_added <<" maxToT_added_Chan "<<maxToT_added_Chan<<endl;
+   
             if (j<32&& Fing_leadChan[i][j]>-1){
 
                 hFING_Hit_Pat ->Fill(Fing_leadChan[i][j]);
@@ -1758,42 +1791,37 @@ void EventAnlProc::Do_Finger_Histos(EventAnlStore* pOutput){
 
           Fing_SC41_diff[Fing_leadChan[i][j]] =  (Fing_leadT[0][0] - Fing_leadT[i][j]);
           pOutput-> pFing_SC41_diff[Fing_leadChan[i][j]] = Fing_SC41_diff[Fing_leadChan[i][j]];
-          // cout << "ev " << event_number  << " i "<<i << " j " <<j << " Fing_leadT[0][0] " << Fing_leadT[0][0] <<" Fing_leadT[i][j] " << Fing_leadT[i][j] <<" Fing_SC41_diff " << Fing_SC41_diff[Fing_leadChan[i][j]]<<  " Fing_leadChan[i][j] " << Fing_leadChan[i][j] <<endl;
           hFING_trig_lead[Fing_leadChan[i][j]] ->Fill(Fing_SC41_diff[Fing_leadChan[i][j]]);
         }
+        ///SC41 ToT
+        if(Fing_leadChan[i][j]==0){
+           hFING_SC41_ToT->Fill(Fing_TOT[i][j]);
+            }
         ///Time/Threshold for PMT up and PMT down sum
            if(Fing_leadChan[i][j]>17){
-                Fing_ToT_UpDown[i][j] = (Fing_trailT[i][j+1]-Fing_leadT[i][j]) + (Fing_trailT[i][j-1]- Fing_leadT[i][j-2]);
-          //  }
-//      cout <<"1) event " << event_number << " Fing_trailT[i][j+1] " << Fing_trailT[i][j+1] <<" Fing_leadT[i][j] " << Fing_leadT[i][j] <<  " Fing_trailT[i][j-1] " << Fing_trailT[i][j-1] <<" Fing_leadT[i][j-2] " << Fing_leadT[i][j-2]  << " Fing_ToT_UpDown[i][j] " << Fing_ToT_UpDown[i][j] <<" Fing_leadChan[i][j] " << Fing_leadChan[i][j] << " Fing_tamex_ch[i][j] " << Fing_tamex_ch[i][j]<<  " i " << i << " j " << j <<endl;
-            hFING_ToT_StripID_UpDown -> Fill(Fing_ToT_UpDown[i][j],Fing_leadChan[i][j]);
-            ///ToT for the Maximum value in a given event
-            if((Fing_tamex_ch[i][j] && Fing_tamex_ch[i][j]+1) >0 && maxToT_added_Chan>17){
-               hFING_ToT_StripID_UpDown_max -> Fill(maxToT_added,maxToT_added_Chan);
-        }
+               // Fing_ToT_UpDown[i][j] = (Fing_trailT[i][j+1]-Fing_leadT[i][j]) + (Fing_trailT[i][j-1]- Fing_leadT[i][j-2]);
+                Fing_ToT_UpDown[i][j]  =  Fing_TOT_added[i][j];
+               
         ///Get position from ToT 
         if(Fing_TOT[i][j]>0  ){
-            Fing_pos_ToT_max[maxToT_added_Chan] = (Fing_TOT[i][j]/maxToT_added);
+        
             Fing_pos_ToT[i][j] = (Fing_TOT[i][j]/Fing_ToT_UpDown[i][j]);
             pOutput->pFing_pos_ToT[i][j] =  Fing_pos_ToT[i][j];
+            hFING_ToT_StripID_UpDown -> Fill(Fing_ToT_UpDown[i][j],Fing_leadChan[i][j]);
 
-            
           if(Fing_pos_ToT[i][j]>0){
             hFING_Pos_ToT -> Fill(Fing_leadChan[i][j], Fing_pos_ToT[i][j]);
               ///2D Gate on Position
              if(fCond_FingToTvsStrip->Test(Fing_leadChan[i][j],Fing_pos_ToT[i][j])){
                 hFING_Pos_ToT_gated -> Fill(Fing_leadChan[i][j], Fing_pos_ToT[i][j]);
             }
-            if( maxToT_added_Chan>17){
-            hFING_Pos_ToT_Max ->Fill(Fing_leadChan[i][j], Fing_pos_ToT_max[Fing_leadChan[i][j]]);
-            }
+           
         }
           //  cout << " event " << event_number <<" Fing_TOT[i][j] " << Fing_TOT[i][j] <<" Fing_ToT_UpDown[i][j] " << Fing_ToT_UpDown[i][j] << " Fing_pos_ToT[i][j] " << Fing_pos_ToT[i][j] << " i " << i << " j " << j <<endl;  
         }
             if(Fing_leadChan[i][j]>0){         
                 ///ToT (Only up) to Energy conversion, Tau needs to be checked 
-                FingToT_E[i][j] = 2*exp(Fing_pos_ToT[i][j]/1000000);
-               //cout <<"FingToT_E " << FingToT_E[i][j] <<" Fing_TOT[i][j] "<< Fing_TOT[i][j]<< " i " << i << " j " << j <<endl;  
+                FingToT_E[i][j] = 2*exp(Fing_pos_ToT[i][j]/1000000); 
                 hFING_ToT_StripID_Exp ->Fill( FingToT_E[i][j], Fing_leadChan[i][j]);
                 hFING_ToT[Fing_leadChan[i][j]]->Fill(Fing_TOT[i][j]);
                 hFING_ToT_StripID ->Fill(Fing_TOT[i][j], Fing_leadChan[i][j]);
@@ -1808,7 +1836,7 @@ void EventAnlProc::Do_Finger_Histos(EventAnlStore* pOutput){
       if(Fing_leadChan[i][j]>-1){
       downData = dataSetPerEvent[Fing_leadChan[i][j]];
       total_time = totaltimeEvent[Fing_leadChan[i][j]];
-//      cout <<"2event " << event_number <<" downData " <<downData << " dataSetPerEvent[fingchan] "<<dataSetPerEvent[Fing_leadChan[i][j]] << " total_time " <<  total_time << " Fing_leadChan[i][j] " << Fing_leadChan[i][j]<<endl;
+
       
       
       
@@ -1819,21 +1847,13 @@ void EventAnlProc::Do_Finger_Histos(EventAnlStore* pOutput){
       if(Fing_leadChan[i][j]>0){
        Fing_ratio = Fing_LeadDiff[Fing_leadChan[i][j]]/total_time;
       // cout <<"Fing_ratio "<<Fing_ratio <<" Fing_LeadDiff[Fing_leadChan[i][j]] " << Fing_LeadDiff[Fing_leadChan[i][j]] <<" total_time " << total_time << endl;
-       hFING_Pos->Fill(Fing_leadChan[i][j], Fing_ratio);
-        //pmtSetPerEvent[iter] =  Fing_leadChan[i][j];
-       //if (event_number==2157836){
- //cout <<"1) Fing_ratio " <<Fing_ratio << " Fing_LeadDiff[Fing_leadChan[i][j]] "<< Fing_LeadDiff[Fing_leadChan[i][j]]<<" Fing_LeadPlus[Fing_leadChan[i][j]] " << Fing_LeadPlus[Fing_leadChan[i][j]] <<endl;  
+       hFING_Pos->Fill(Fing_leadChan[i][j], Fing_ratio);  
         totalFiredPMT++;
             }
         }
     }
-    if(maxToT>0){          
-                 hFING_MaxToT[maxToTChan]->Fill(maxToT);
-                 hFING_MaxToT_StripID->Fill(maxToT, maxToTChan);
-                  ///MaxToT Energy conversion 
-                 FingToT_E_Max = 2*exp(maxToT/1000000);
-                 hFING_MaxToTExp_StripID->Fill(FingToT_E_Max, maxToTChan);
-    }
+   
+    
     
   //////E.Sahin June 2019   pos vs strip calc
   //if (event_number==2157836){
@@ -1873,6 +1893,31 @@ void EventAnlProc::Do_Finger_Histos(EventAnlStore* pOutput){
 //         }
       }
      }
+     
+        ///ToT for the Maximum value in a given event
+                   
+                if(maxToT>0){
+            hFING_MaxToT[maxToTChan]->Fill(maxToT);
+             hFING_MaxToT_StripID->Fill(maxToT, maxToTChan);              
+                }
+            
+              //We skip Ch 17 since it takes the lead/trial from the trigger
+           if( maxToT_added_Chan>17){
+             hFING_ToTMaxAdded[maxToT_added_Chan]->Fill(maxToT_added);
+             hFING_ToT_StripID_UpDown_max -> Fill(maxToT_added,maxToT_added_Chan); 
+             ///Position Max ToT
+             Fing_pos_ToT_max[maxToT_added_Chan] = (maxToT/maxToT_added);
+             hFING_Pos_ToT_Max ->Fill(maxToT_added_Chan, Fing_pos_ToT_max[maxToT_added_Chan]);
+                 
+            }
+            
+             if(maxToT>0){          
+                 
+                  ///MaxToT Energy conversion 
+                 FingToT_E_Max = 2*exp(maxToT/1000000);
+                 hFING_MaxToTExp_StripID->Fill(FingToT_E_Max, maxToTChan);
+    }
+      
    }
    
 
@@ -1882,19 +1927,26 @@ void EventAnlProc::Do_Finger_Histos(EventAnlStore* pOutput){
 void EventAnlProc::Make_Fat_Plas_Histos(){
   for (int i =0; i<50; i++){
  // hFAT_TDCdt_refSC41calib[i] = MakeTH1('D', Form("FATIMA/Timing/TDCdt_refSC41/Calib_ref/TDCdt_LaBr%02d_LaBr%02d_calib", 40, i), Form("TDC dt LaBr%02d LaBr%02d", 40, i),27500,-5000,50000);
-        hFat_bplas_Corr_SC41_Dets[i] =  MakeTH1('D', Form("Correlations/FATIMA_PLASTIC_Ungated/Fat_SC41-Plas_SC41_dT/Fat-bPlas_Tdiff_SC41_FatCh.%2d",i), Form("Time difference SC41_Fat_bplas: Fatima Ch. %2d",i), 1000,-1000,1000);
-        hFat_bplas_Corr_SC41_Dets_gated[i] =  MakeTH1('D', Form("Correlations/FATIMA_PLASTIC_Gated/Fat_SC41-Plas_SC41_dT_Gated/Fat-bPlas_Tdiff_SC41_Fat_Egate_Ch.%2d",i), Form("Time difference SC41_Fat_bplas gated on fatima energy. Ch. %2d",i), 5000,-10000,10000);
+        hFat_bplas_Corr_SC41_Dets[i] =  MakeTH1('D', Form("Correlations/FATIMA_PLASTIC_Ungated/Fat_SC41-Plas_SC41_dT/Fat-bPlas_Tdiff_SC41_FatCh.%2d",i), Form("Time difference SC41_Fat_bplas: Fatima Ch. %2d",i), 2000,-1000,1000);
         
-        hFat_bplas_Corr_SiPM_Dets[i] =  MakeTH1('D', Form("Correlations/FATIMA_PLASTIC_Ungated/Fat_Ref-ChdT--Plas_Ref-ChdT/Fat-ChdT_bPlasChdT_FatCh.%2d",i), Form("Time difference: Fatima (Ch.0-Ch.x) - bplas (Ch.1-Ch.x average) Per Fatima Ch. %2d",i), 1000,-1000,1000);
-        hFat_bplas_Corr_RawTDCFAT_RawTDCbP_Dets[i] =  MakeTH1('D', Form("Correlations/FATIMA_PLASTIC_Ungated/FatTDC_Ch--PlasTDC_Avg/Fat-TDC_bPlasTDCAvg_FatCh.%2d",i), Form("Time difference: Fatima Raw TDC - bplas TDC Average Per Fatima Ch. %2d",i), 1000,-1000,1000);
-        hFat_bplas_Corr_SiPM_Gated_Dets[i] =  MakeTH1('D', Form("Correlations/FATIMA_PLASTIC_Gated/FatTDC_Ch--PlasTDC_Avg/Fat-TDC_bPlasTDCAvg_EGated_FatCh.%2d",i), Form("Time difference: Fatima Raw TDC - bplas TDC Average Fatima EGated Per Fatima Ch. %2d",i), 1000,-1000,1000);
+        hFat_bplas_Corr_SC41_Dets_gated[i] =  MakeTH1('D', Form("Correlations/FATIMA_PLASTIC_Gated/Fat_SC41-Plas_SC41_dT_Gated/Fat-bPlas_Tdiff_SC41_Fat_Egate_Ch.%2d",i), Form("Time difference SC41_Fat_bplas gated on fatima energy. Ch. %2d",i), 2000,-1000,1000);
+        
+        hFat_bplas_Corr_SiPM_Dets[i] =  MakeTH1('D', Form("Correlations/FATIMA_PLASTIC_Ungated/Fat_Ref-ChdT--Plas_Ref-ChdTAvg/Fat-ChdT_bPlasChdT_FatCh.%2d",i), Form("Time difference: Fatima (Ch.0-Ch.x) - bplas (Ch.1-Ch.x average) Per Fatima Ch. %2d",i), 2000,-1000,1000);
+        
+        hFat_bplas_Corr_SiPM_Dets_gated[i] =  MakeTH1('D', Form("Correlations/FATIMA_PLASTIC_Gated/Fat_Ref-ChdT--Plas_Ref-ChdTAvg/Fat-ChdT_bPlasChdT_Gated_FatCh.%2d",i), Form("Time difference: Fatima (Ch.0-Ch.x) - bplas (Ch.1-Ch.x average) Per Fatima Gated Ch. %2d",i), 2000,-1000,1000);
+        
+        hFat_bplas_Corr_RawTDCFAT_RawTDCbP_Dets[i] =  MakeTH1('D', Form("Correlations/FATIMA_PLASTIC_Ungated/FatTDC_Ch--PlasTDC_Avg/Fat-TDC_bPlasTDCAvg_FatCh.%2d",i), Form("Time difference: Fatima Raw TDC - bplas TDC Average Per Fatima Ch. %2d",i), 2000,-1000,1000);
+        
+        hFat_bplas_Corr_SiPM_Gated_Dets[i] =  MakeTH1('D', Form("Correlations/FATIMA_PLASTIC_Gated/FatTDC_Ch--PlasTDC_Avg/Fat-TDC_bPlasTDCAvg_EGated_FatCh.%2d",i), Form("Time difference: Fatima Raw TDC - bplas TDC Average Fatima EGated Per Fatima Ch. %2d",i), 2000,-1000,1000);
 
     }
  // hFAT_TDCdt_refSC41calib_sum = MakeTH1('I',"FATIMA/Timing/TDCdt_refSC41/TDCdt_calib_Sum","Average SC41-Plastic",27500,-5000,50000);
-  hPLAS_TimeDiff_SC41_avg = MakeTH1('I',"bPlastic/Timing/TDCdT_SC41-SiPM_Avg","SC41 - SiPM dT(ns) Average (calibrated)",2000,-1000,1000);
-  hPLAS_TimeDiff_SiPM_avg = MakeTH1('I',"bPlastic/Timing/TDCdT_SiPM1-SiPM_Avg","SiPM1 - SiPM Ch.x dT(ns) Average (calibrated)",2000,-1000,1000);
+  hPLAS_TimeDiff_SC41_avg = MakeTH1('I',"bPlastic/Timing/TDCdT_SC41-SiPM_Avg","SC41 - SiPM dT(ns) Average (calibrated)",5E4,0,5E5);
+  hPLAS_TimeDiff_SiPM_avg = MakeTH1('I',"bPlastic/Timing/TDCdT_SiPM1-SiPM_Avg","SiPM1 - SiPM Ch.x dT(ns) Average (calibrated)",250,-20000,20000);
   hPLAS_bPlasTDC_avg= MakeTH1('I',"bPlastic/Timing/TDC_Average","Average TDC",5000,-5000,5000);
   hFat_bplas_Corr_EFatEbPlas = MakeTH2('D',"Correlations/FATIMA_PLASTIC_Ungated/EnergyvsEnergy","Coinc Fatima bPlastic Energy",2000, 0.0, 4000.0, 2000, 0.0, 4000);
+  
+  hSC41FatPlas= MakeTH1('I',"Correlations/dT_SC41FatbPlas","SC41 fatima - SC41 Plastic",5E4,0,5E5);
 
 }
   /**---------------------------------------------------------------------------------------------------------**/
@@ -1954,7 +2006,7 @@ void EventAnlProc::Make_Fat_Plas_Histos(){
 
             /// Plastic TDC
             int bPlasTDCID_bPlasFatCorr = bPlasTDCID[i];
-          //  bPlas_TDCRaw[bPlasTDCID_bPlasFatCorr] =
+          
              ///Take only first hit of a given channel
             bPlas_TDC_Incr = 0;
             for(int j=0; j<=i; j++){
@@ -1971,8 +2023,8 @@ void EventAnlProc::Make_Fat_Plas_Histos(){
               bPlas_SC41_dT_bPlasFatCorr_sum += bPlas_SC41_dT_bPlasFatCorr[bPlasTDCID_bPlasFatCorr];
               bPlas_SiPM_dT_bPlasFatCorr_sum += bPlas_SiPM_dT_bPlasFatCorr[bPlasTDCID_bPlasFatCorr];
               bPlas_TDC_sum += bPlasTDC_TS[i][bPlasTDCID_bPlasFatCorr];
-                  bPlasTDChits++; //needed for averaging later
-                     }
+                  bPlasTDChits++; //needed for averaging later      
+        }
       }
                 ///Get FATIMA TDC
   for (int i=0; i<FatTDCFired; i++){
@@ -1982,6 +2034,8 @@ void EventAnlProc::Make_Fat_Plas_Histos(){
     Fat_TDC_Multipl[Fat_bPlasTDCIDMain[i]]++; //Fat TDC Multiplicity
                              ///Call in SC41-Fat and Fat ref-Fat Ch.
                 Fat_SC41_dT_bPlasFatCorr[Fat_bPlasTDCIDMain[i]] = pOutput->pFat_SC41_dT_Calib[Fat_bPlasTDCIDMain[i]];
+                
+               
                // if(Fat_SC41_dT_bPlasFatCorr[Fat_bPlasTDCIDMain[i]] && Fat_bPlasTDC_TS_Raw[i]>0 && Fat_bPlasTDCIDMain[i]<41){
 
 
@@ -2005,39 +2059,60 @@ void EventAnlProc::Make_Fat_Plas_Histos(){
 
             if(Fat_bPlasTDCIDMain[i]<40 ){
 
-                ///Raw FAT TDC - Raw Plastic TDC1
+                    ///Raw FAT TDC - Raw Plastic TDC1
                     bPlas_TDC_avg =  bPlas_TDC_sum/bPlasTDChits;
 
-                   hPLAS_bPlasTDC_avg -> Fill(bPlas_TDC_avg);
-              
-                   if(Fat_GainMatch_bPlasFatCorr[Fat_QDCID_bPlasFatCorr]>fCorrel->GFat_Egate_low && Fat_GainMatch_bPlasFatCorr[Fat_QDCID_bPlasFatCorr]<fCorrel->GFat_Egate_high ){
-
+                    hPLAS_bPlasTDC_avg -> Fill(bPlas_TDC_avg/1000);
+                   
+                    ///Ungated (SC41-Fatima) - (SC41-bPlas dT average)
+                    if(bPlas_SC41_dT_bPlasFatCorr_avg>0){
+                    
+                        Fat_SC41_bPlas_bPlasFatCorr[Fat_bPlasTDCIDMain[i]] =  (Fat_SC41_dT_bPlasFatCorr[Fat_bPlasTDCIDMain[i]] - bPlas_SC41_dT_bPlasFatCorr_avg)/1000;
+                        
+                        
+                        
+                      //  cout << "Fat_SC41_bPlas_bPlasFatCorr " << Fat_SC41_bPlas_bPlasFatCorr[Fat_bPlasTDCIDMain[i]] << " Fat_SC41_dT_bPlasFatCorr " << Fat_SC41_dT_bPlasFatCorr[Fat_bPlasTDCIDMain[i]] <<" bPlas_SC41_dT_bPlasFatCorr_avg " << bPlas_SC41_dT_bPlasFatCorr_avg << endl;
+                        hFat_bplas_Corr_SC41_Dets[Fat_bPlasTDCIDMain[i]]->Fill(Fat_SC41_bPlas_bPlasFatCorr[Fat_bPlasTDCIDMain[i]]);
+                        }
+                    
+                 ///Ungated (Fatima dT - SiPM-bPlas dT average)
+                Fat_PM_bPlasFatCorr[Fat_bPlasTDCIDMain[i]] =  pOutput->pFat_Ch_dT[Fat_bPlasTDCIDMain[i]];
+                
+                Fat_PMdT_bPlasdT_bPlasFatCorr[Fat_bPlasTDCIDMain[i]] = (Fat_PM_bPlasFatCorr[Fat_bPlasTDCIDMain[i]] - bPlas_SiPM_dT_bPlasFatCorr_avg)/1000;
+               
+                hFat_bplas_Corr_SiPM_Dets[Fat_bPlasTDCIDMain[i]] -> Fill(Fat_PMdT_bPlasdT_bPlasFatCorr[Fat_bPlasTDCIDMain[i]]);
+                    
+                    ///Fatima Energy gate
+                   if(Fat_GainMatch_bPlasFatCorr[Fat_QDCID_bPlasFatCorr]>fCorrel->GFat_Egate_low &&                             Fat_GainMatch_bPlasFatCorr[Fat_QDCID_bPlasFatCorr]<fCorrel->GFat_Egate_high ){
+       
+                   ///Raw TDC Time gate for Fatima
                    if(FatTDC_TS[i][Fat_bPlasTDCIDMain[i]]>fCorrel->GFat_TRawgate_low && FatTDC_TS[i][Fat_bPlasTDCIDMain[i]]<fCorrel->GFat_TRawgate_high){
+                       
+                  
                     Fat_bPlas_rawTDC_bPlasFatCorr[Fat_bPlasTDCIDMain[i]] = (FatTDC_TS[i][Fat_bPlasTDCIDMain[i]] - bPlas_TDC_avg);
-                    //cout<<"ev " << event_number << " bPlas_TDC_sum " << bPlas_TDC_sum << " bPlasTDChits " << bPlasTDChits << " bPlas_TDC_avg " << bPlas_TDC_avg << "  FatTDC_TS " << FatTDC_TS[i][Fat_bPlasTDCIDMain[i]] << " Fat_bPlasTDCIDMain[i] " << Fat_bPlasTDCIDMain[i]<< "  Fat_bPlas_rawTDC_bPlasFatCorr " <<  Fat_bPlas_rawTDC_bPlasFatCorr[Fat_bPlasTDCIDMain[i]] << " i " << i << endl;
+//         
                     hFat_bplas_Corr_RawTDCFAT_RawTDCbP_Dets[Fat_bPlasTDCIDMain[i]]->Fill(Fat_bPlas_rawTDC_bPlasFatCorr[Fat_bPlasTDCIDMain[i]]);
                     // cout <<"event " << event_number << " Fat_bPlasTDC_TS_Raw "<< Fat_bPlasTDC_TS_Raw[Fat_bPlasTDCIDMain[i]] <<" bPlasTDC_TS " << bPlasTDC_TS[k][bPlasTDCID[k]]<<" Fat_bPlas_rawTDC_bPlasFatCorr " << Fat_bPlas_rawTDC_bPlasFatCorr[Fat_bPlasTDCIDMain[i]] << " Fat_bPlasTDCIDMain[i] " <<Fat_bPlasTDCIDMain[i] <<" bPlasTDCID[j] " << bPlasTDCID[k]<< endl;
                    //}
            
 
-                ///PM-Fatima dT - SiPM-bPlas dT average
-                Fat_PM_bPlasFatCorr[Fat_bPlasTDCIDMain[i]] =  pOutput->pFat_Ch_dT[Fat_bPlasTDCIDMain[i]];
-                Fat_PMdT_bPlasdT_bPlasFatCorr[Fat_bPlasTDCIDMain[i]] = (Fat_PM_bPlasFatCorr[Fat_bPlasTDCIDMain[i]] - bPlas_SiPM_dT_bPlasFatCorr_avg);
-                
-                hFat_bplas_Corr_SiPM_Dets[Fat_bPlasTDCIDMain[i]] -> Fill(Fat_PMdT_bPlasdT_bPlasFatCorr[Fat_bPlasTDCIDMain[i]]);
-
-                if(bPlas_SC41_dT_bPlasFatCorr_avg>0){
-                ///SC41-Fatima - SC41-bPlas dT average
-                    Fat_SC41_bPlas_bPlasFatCorr[Fat_bPlasTDCIDMain[i]] =  Fat_SC41_dT_bPlasFatCorr[Fat_bPlasTDCIDMain[i]] - bPlas_SC41_dT_bPlasFatCorr_avg; ///Fatima - Plastic SC41
-                    hFat_bplas_Corr_SC41_Dets[Fat_bPlasTDCIDMain[i]]->Fill(Fat_SC41_bPlas_bPlasFatCorr[Fat_bPlasTDCIDMain[i]]);
+                 ///Gated (Fatima dT - SiPM-bPlas dT average)
+                    hFat_bplas_Corr_SiPM_Dets_gated[Fat_bPlasTDCIDMain[i]] -> Fill(Fat_PMdT_bPlasdT_bPlasFatCorr[Fat_bPlasTDCIDMain[i]]);
+              
+//      cout <<"Fat_PMdT_bPlasdT_bPlasFatCorr[Fat_bPlasTDCIDMain[i]] "<<Fat_PMdT_bPlasdT_bPlasFatCorr[Fat_bPlasTDCIDMain[i]] <<" Fat_bPlasTDCIDMain[i] " << Fat_bPlasTDCIDMain[i]<<endl;
+               // if(bPlas_SC41_dT_bPlasFatCorr_avg>0){
+                  
+                    ///Gated  (SC41-Fatima) - (SC41-bPlas dT average)
+                    hFat_bplas_Corr_SC41_Dets_gated[Fat_bPlasTDCIDMain[i]]->Fill(  Fat_SC41_bPlas_bPlasFatCorr[Fat_bPlasTDCIDMain[i]]);
 
 
-                    ///Fatima Energy gate
-                     hFat_bplas_Corr_SC41_Dets_gated[Fat_bPlasTDCIDMain[i]]->Fill(Fat_minus_plasticTDC[i]);
+                    ///Fatima Energy gated spectra fill
+                   
                      hFat_bplas_Corr_SiPM_Gated_Dets[Fat_bPlasTDCIDMain[i]] -> Fill(Fat_PMdT_bPlasdT_bPlasFatCorr[Fat_bPlasTDCIDMain[i]]);
-                        }
+                     //   }
                     }
                     for (int k = 0; k<bPlasTDCFired; k++){
+                        hSC41FatPlas->Fill(SC41-bPlasTDC_TS[k][bPlasTDCID[k]]);
                     ///Fatima Energy - bPlastic Energy
                   bPlas_GainMatch_bPlasFatCorr[ bPlasTDCID[k]-1] = pOutput->pbPlas_QDCGainMatch_i[ bPlasTDCID[k]-1];
                   hFat_bplas_Corr_EFatEbPlas->Fill(Fat_GainMatch_bPlasFatCorr[Fat_QDCID_bPlasFatCorr], bPlas_GainMatch_bPlasFatCorr[ bPlasTDCID[k]-1] );
